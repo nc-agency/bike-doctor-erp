@@ -10,6 +10,7 @@
 # - erpnext-web-Container angepasst, um 'yarn watch' anstelle von 'yarn start' zu verwenden
 # - Bikedoctor-App temporär entfernt, um ERPNext-Basis zu testen (2025-05-05)
 # - Datenbankkonfiguration korrigiert: Gleiche Benutzer und Passwörter in allen Containern (2025-05-05)
+# - Verbesserten Healthcheck für MariaDB hinzugefügt und 15-Sekunden-Verzögerung im App-Container (2025-05-05)
 
 version: '3'
 
@@ -44,11 +45,13 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pfrappe"]
       interval: 1s
       retries: 15
+      timeout: 5s
+      start_period: 10s
 
   erpnext-app:
     image: frappe/erpnext:v14
     restart: always
-    command: ['bash', '-c', 'cd /home/frappe/frappe-bench && bench set-config -g db_host mariadb && bench set-config -g redis_cache "redis://redis:6379/0" && bench set-config -g redis_queue "redis://redis:6379/1" && bench set-config -g redis_socketio "redis://redis:6379/2" && bench set-config -g socketio_port 9000 && bench doctor && bench new-site bikedoctor.localhost --db-name frappe --admin-password admin --mariadb-root-password frappe --db-root-username root --db-password frappe --install-app erpnext && bench --site bikedoctor.localhost migrate && bench --site bikedoctor.localhost enable-scheduler && bench --site bikedoctor.localhost add-to-hosts && bench use bikedoctor.localhost && bench doctor && /home/frappe/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 --threads=4 -w 2 frappe.app:application --timeout 120']
+    command: ['bash', '-c', 'sleep 15 && cd /home/frappe/frappe-bench && bench set-config -g db_host mariadb && bench set-config -g redis_cache "redis://redis:6379/0" && bench set-config -g redis_queue "redis://redis:6379/1" && bench set-config -g redis_socketio "redis://redis:6379/2" && bench set-config -g socketio_port 9000 && bench doctor && bench new-site bikedoctor.localhost --db-name frappe --admin-password admin --mariadb-root-password frappe --db-root-username root --db-password frappe --install-app erpnext && bench --site bikedoctor.localhost migrate && bench --site bikedoctor.localhost enable-scheduler && bench --site bikedoctor.localhost add-to-hosts && bench use bikedoctor.localhost && bench doctor && /home/frappe/frappe-bench/env/bin/gunicorn -b 0.0.0.0:8000 --threads=4 -w 2 frappe.app:application --timeout 120']
     environment:
       - FRAPPE_PY=0.0.0.0
       - FRAPPE_WS=0.0.0.0
