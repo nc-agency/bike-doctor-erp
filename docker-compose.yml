@@ -49,7 +49,7 @@ services:
       interval: 10s
 
   erpnext-python:
-    image: frappe/erpnext-worker:v15
+    image: frappe/erpnext-worker:version-15
     restart: on-failure
     environment:
       - FRAPPE_PY=0.0.0.0:8000
@@ -71,7 +71,7 @@ services:
       - mariadb
 
   erpnext-socketio:
-    image: frappe/frappe-socketio:v15
+    image: frappe/frappe-socketio:version-15
     restart: on-failure
     depends_on:
       - redis
@@ -83,7 +83,7 @@ services:
       - REDIS_SOCKETIO=redis://redis:6379/2
 
   erpnext-worker-default:
-    image: frappe/erpnext-worker:v15
+    image: frappe/erpnext-worker:version-15
     restart: on-failure
     depends_on:
       - redis
@@ -100,7 +100,7 @@ services:
       - PYTHONPATH=/home/frappe/frappe-bench/apps
 
   erpnext-worker-short:
-    image: frappe/erpnext-worker:v15
+    image: frappe/erpnext-worker:version-15
     restart: on-failure
     depends_on:
       - redis
@@ -117,7 +117,7 @@ services:
       - PYTHONPATH=/home/frappe/frappe-bench/apps
 
   erpnext-worker-long:
-    image: frappe/erpnext-worker:v15
+    image: frappe/erpnext-worker:version-15
     restart: on-failure
     depends_on:
       - redis
@@ -134,7 +134,7 @@ services:
       - PYTHONPATH=/home/frappe/frappe-bench/apps
 
   erpnext-scheduler:
-    image: frappe/erpnext-worker:v15
+    image: frappe/erpnext-worker:version-15
     restart: on-failure
     depends_on:
       - redis
@@ -151,7 +151,7 @@ services:
       - PYTHONPATH=/home/frappe/frappe-bench/apps
 
   erpnext-nginx:
-    image: frappe/erpnext-nginx:v15
+    image: frappe/erpnext-nginx:version-15
     restart: on-failure
     depends_on:
       - erpnext-python
