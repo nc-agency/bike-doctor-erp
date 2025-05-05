@@ -38,7 +38,13 @@ services:
         bench set-config -g redis_socketio ${REDIS_SOCKETIO} &&
         bench new-site --db-root-password ${DB_ROOT_PASSWORD} --admin-password ${ADMIN_PASSWORD} --no-mariadb-socket ${SITE_NAME} &&
         if [ "$migrate" = "true" ]; then bench --site ${SITE_NAME} set-config server_script_enabled 1; fi &&
-        bench --site ${SITE_NAME} set-config apps_path "/home/frappe/frappe-bench/apps.json"
+        bench --site ${SITE_NAME} set-config apps_path "/home/frappe/frappe-bench/apps.json" &&
+        bench --site ${SITE_NAME} install-app erpnext &&
+        if [ -d "/home/frappe/frappe-bench/apps/bikedoctor" ]; then 
+          bench --site ${SITE_NAME} install-app bikedoctor; 
+        else 
+          echo "BikeDoctor App nicht gefunden - Apps werden manuell installiert werden müssen"; 
+        fi
     environment:
       - FRAPPE_VERSION=${FRAPPE_VERSION}
       - SITE_NAME=${SITE_NAME:-frappe.localhost}
