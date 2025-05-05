@@ -1,0 +1,67 @@
+# Docker-Compose-Override-Datei für bike.doctor ERPNext-System
+# Erstellt am: 2025-05-05
+# Diese Datei enthält projektspezifische Anpassungen für die ERPNext-Installation:
+# - Einbindung der benutzerdefinierten bikedoctor-App
+# - Direkte Portfreigaben für einfachen lokalen Zugriff
+# - Verbesserte Redis-Konfiguration zur Behebung von Verbindungsproblemen
+
+services:
+  configurator:
+    environment:
+      - INSTALL_APPS=erpnext
+    volumes:
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+
+  backend:
+    environment:
+      - REDIS_CACHE=redis://redis-cache:6379/0
+      - REDIS_QUEUE=redis://redis-queue:6379/1
+      - REDIS_SOCKETIO=redis://redis-socketio:6379/2
+      - BENCH_LOCAL_REDIS=0
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
+    volumes:
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+
+  frontend:
+    ports:
+      - "80:8080"
+      - "443:443"
+
+  queue-short:
+    environment:
+      - REDIS_CACHE=redis://redis-cache:6379/0
+      - REDIS_QUEUE=redis://redis-queue:6379/1
+      - REDIS_SOCKETIO=redis://redis-socketio:6379/2
+      - BENCH_LOCAL_REDIS=0
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
+    volumes:
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+
+  queue-long:
+    environment:
+      - REDIS_CACHE=redis://redis-cache:6379/0
+      - REDIS_QUEUE=redis://redis-queue:6379/1
+      - REDIS_SOCKETIO=redis://redis-socketio:6379/2
+      - BENCH_LOCAL_REDIS=0
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
+    volumes:
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+
+  scheduler:
+    environment:
+      - REDIS_CACHE=redis://redis-cache:6379/0
+      - REDIS_QUEUE=redis://redis-queue:6379/1
+      - REDIS_SOCKETIO=redis://redis-socketio:6379/2
+      - BENCH_LOCAL_REDIS=0
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
+    volumes:
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+
+  websocket:
+    environment:
+      - REDIS_CACHE=redis://redis-cache:6379/0
+      - REDIS_QUEUE=redis://redis-queue:6379/1
+      - REDIS_SOCKETIO=redis://redis-socketio:6379/2
+      - BENCH_LOCAL_REDIS=0
+    volumes:
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
