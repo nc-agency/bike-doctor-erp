@@ -1,13 +1,7 @@
-# Docker-Compose-Konfiguration für bike.doctor ERPNext-System
-# Basierend auf offizieller frappe_docker-Implementierung
-# Zuletzt aktualisiert: 2025-05-05
-# Änderungen: 
-# - Anpassung an das offizielle Compose-File aus frappe_docker
-# - Konfiguration für Docker-Compose statt Docker Stack
-# - Ergänzung mit Override-Datei für benutzerdefinierte Anpassungen
-# - Anpassung des Override-Dateinamens für Konsistenz (docker-compose.override.yml)
-# - Sicherstellen der korrekten Redis-Konfiguration für Docker-Networking
-# - Korrektur des Bash-Skripts im Configurator-Service für bessere Zuverlässigkeit
+# docker-compose.yml für bike-doctor-erp
+# Erstellt am: 2025-05-05
+# Letzte Änderung: Vollständige Aktualisierung gemäß offizieller frappe_docker-Vorlage
+# Diese Datei ist eine Kopie der offiziellen frappe_docker compose.yaml mit minimalen Anpassungen
 
 x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
@@ -193,5 +187,4 @@ volumes:
   sites:
   logs:
 
-# If you use docker stack deploy use the override.yaml file to configure persistant volumes
-# Refer to docker-compose.override.yml for configuration
+# Verwende docker-compose.override.yml für eigene Anpassungen
