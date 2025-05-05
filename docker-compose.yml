@@ -7,6 +7,7 @@
 # - Korrekte Image-Tags für ERPNext v15
 # - BENCH_LOCAL_REDIS=0 explizit gesetzt
 # - Spezifische Umgebungsvariablen für Redis-Hosts
+# - Korrekte Docker-Image-Namen entsprechend offiziellem Repository
 
 version: '3'
 
@@ -38,7 +39,7 @@ services:
       - mariadb-data:/var/lib/mysql
 
   frappe:
-    image: frappe/frappe:v15.0.0
+    image: frappe/bench:latest
     restart: on-failure
     environment:
       - REDIS_CACHE_HOST=redis-cache
@@ -61,7 +62,7 @@ services:
       - mariadb
 
   erpnext:
-    image: frappe/erpnext:v15.0.0
+    image: frappe/bench:latest
     restart: on-failure
     environment:
       - REDIS_CACHE_HOST=redis-cache
@@ -84,7 +85,7 @@ services:
       - mariadb
 
   websocket:
-    image: frappe/frappe:v15.0.0
+    image: frappe/bench:latest
     restart: on-failure
     command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
     environment:
@@ -114,7 +115,7 @@ services:
       - websocket
 
   worker-default:
-    image: frappe/erpnext:v15.0.0
+    image: frappe/bench:latest
     restart: on-failure
     command: bench worker --queue default
     environment:
@@ -131,7 +132,7 @@ services:
       - erpnext
 
   worker-short:
-    image: frappe/erpnext:v15.0.0
+    image: frappe/bench:latest
     restart: on-failure
     command: bench worker --queue short
     environment:
@@ -148,7 +149,7 @@ services:
       - erpnext
 
   worker-long:
-    image: frappe/erpnext:v15.0.0
+    image: frappe/bench:latest
     restart: on-failure
     command: bench worker --queue long
     environment:
@@ -165,7 +166,7 @@ services:
       - erpnext
 
   scheduler:
-    image: frappe/erpnext:v15.0.0
+    image: frappe/bench:latest
     restart: on-failure
     command: bench schedule
     environment:
