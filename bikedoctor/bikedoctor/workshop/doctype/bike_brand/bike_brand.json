@@ -1,0 +1,125 @@
+{
+ "autoname": "field:brand_name",
+ "creation": "2025-05-05 17:10:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "brand_details_section",
+  "brand_name",
+  "logo",
+  "column_break_4",
+  "website",
+  "country_of_origin",
+  "additional_info_section",
+  "description",
+  "spare_parts_contact",
+  "warranty_information"
+ ],
+ "fields": [
+  {
+   "fieldname": "brand_details_section",
+   "fieldtype": "Section Break",
+   "label": "Brand Details"
+  },
+  {
+   "fieldname": "brand_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Brand Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "logo",
+   "fieldtype": "Attach Image",
+   "label": "Logo"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "website",
+   "fieldtype": "Data",
+   "label": "Website",
+   "options": "URL"
+  },
+  {
+   "fieldname": "country_of_origin",
+   "fieldtype": "Link",
+   "label": "Country of Origin",
+   "options": "Country"
+  },
+  {
+   "fieldname": "additional_info_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Information"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "spare_parts_contact",
+   "fieldtype": "Small Text",
+   "label": "Spare Parts Contact"
+  },
+  {
+   "fieldname": "warranty_information",
+   "fieldtype": "Small Text",
+   "label": "Warranty Information"
+  }
+ ],
+ "image_field": "logo",
+ "modified": "2025-05-05 17:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "BikeDoctor Workshop Management",
+ "name": "Bike Brand",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Workshop Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Workshop Technician",
+   "share": 1,
+   "write": 0
+  }
+ ],
+ "search_fields": "brand_name,country_of_origin",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "brand_name",
+ "track_changes": 1
+}

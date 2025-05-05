@@ -1,0 +1,309 @@
+{
+ "autoname": "format:BIKE-{####}",
+ "creation": "2025-05-05 17:05:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "bike_info_section",
+  "title",
+  "bike_brand",
+  "bike_model",
+  "column_break_5",
+  "year",
+  "frame_number",
+  "color",
+  "owner_section",
+  "owner_type",
+  "owner",
+  "owner_name",
+  "column_break_12",
+  "purchase_date",
+  "warranty_expiry",
+  "specifications_tab",
+  "bike_type",
+  "wheel_size",
+  "frame_size",
+  "frame_material",
+  "column_break_19",
+  "gears",
+  "brake_type",
+  "suspension",
+  "e_bike",
+  "e_bike_details_section",
+  "motor_type",
+  "battery_capacity",
+  "max_speed",
+  "notes_tab",
+  "customer_notes",
+  "workshop_notes",
+  "service_history_tab",
+  "service_history",
+  "attachments_tab",
+  "bike_image",
+  "attachments"
+ ],
+ "fields": [
+  {
+   "fieldname": "bike_info_section",
+   "fieldtype": "Section Break",
+   "label": "Bike Information"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bike_brand",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Bike Brand",
+   "options": "Bike Brand",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bike_model",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Bike Model",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Year"
+  },
+  {
+   "fieldname": "frame_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Frame Number",
+   "unique": 1
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Data",
+   "label": "Color"
+  },
+  {
+   "fieldname": "owner_section",
+   "fieldtype": "Section Break",
+   "label": "Ownership Information"
+  },
+  {
+   "default": "Customer",
+   "fieldname": "owner_type",
+   "fieldtype": "Select",
+   "label": "Owner Type",
+   "options": "Customer\nLead\nStore"
+  },
+  {
+   "fieldname": "owner",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Owner",
+   "options": "owner_type",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "owner.customer_name",
+   "fieldname": "owner_name",
+   "fieldtype": "Data",
+   "label": "Owner Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
+  },
+  {
+   "fieldname": "warranty_expiry",
+   "fieldtype": "Date",
+   "label": "Warranty Expiry"
+  },
+  {
+   "fieldname": "specifications_tab",
+   "fieldtype": "Tab Break",
+   "label": "Specifications"
+  },
+  {
+   "fieldname": "bike_type",
+   "fieldtype": "Select",
+   "label": "Bike Type",
+   "options": "Road Bike\nMountain Bike\nHybrid\nCity Bike\nCargo Bike\nFolding Bike\nKids Bike\nBMX\nGravel Bike\nTrekking Bike\nOther"
+  },
+  {
+   "fieldname": "wheel_size",
+   "fieldtype": "Select",
+   "label": "Wheel Size",
+   "options": "12\"\n16\"\n20\"\n24\"\n26\"\n27.5\"\n28\"\n29\"\nOther"
+  },
+  {
+   "fieldname": "frame_size",
+   "fieldtype": "Data",
+   "label": "Frame Size"
+  },
+  {
+   "fieldname": "frame_material",
+   "fieldtype": "Select",
+   "label": "Frame Material",
+   "options": "Aluminum\nSteel\nCarbon\nTitanium\nOther"
+  },
+  {
+   "fieldname": "column_break_19",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gears",
+   "fieldtype": "Data",
+   "label": "Gears"
+  },
+  {
+   "fieldname": "brake_type",
+   "fieldtype": "Select",
+   "label": "Brake Type",
+   "options": "Rim Brakes\nDisc Brakes - Mechanical\nDisc Brakes - Hydraulic\nCoaster Brake\nOther"
+  },
+  {
+   "fieldname": "suspension",
+   "fieldtype": "Select",
+   "label": "Suspension",
+   "options": "None\nFront Suspension\nFull Suspension\nOther"
+  },
+  {
+   "default": "0",
+   "fieldname": "e_bike",
+   "fieldtype": "Check",
+   "label": "E-Bike"
+  },
+  {
+   "depends_on": "eval:doc.e_bike==1",
+   "fieldname": "e_bike_details_section",
+   "fieldtype": "Section Break",
+   "label": "E-Bike Details"
+  },
+  {
+   "depends_on": "eval:doc.e_bike==1",
+   "fieldname": "motor_type",
+   "fieldtype": "Data",
+   "label": "Motor Type"
+  },
+  {
+   "depends_on": "eval:doc.e_bike==1",
+   "fieldname": "battery_capacity",
+   "fieldtype": "Data",
+   "label": "Battery Capacity"
+  },
+  {
+   "depends_on": "eval:doc.e_bike==1",
+   "fieldname": "max_speed",
+   "fieldtype": "Data",
+   "label": "Max Speed"
+  },
+  {
+   "fieldname": "notes_tab",
+   "fieldtype": "Tab Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "customer_notes",
+   "fieldtype": "Text Editor",
+   "label": "Customer Notes"
+  },
+  {
+   "fieldname": "workshop_notes",
+   "fieldtype": "Text Editor",
+   "label": "Workshop Notes"
+  },
+  {
+   "fieldname": "service_history_tab",
+   "fieldtype": "Tab Break",
+   "label": "Service History"
+  },
+  {
+   "fieldname": "service_history",
+   "fieldtype": "HTML",
+   "label": "Service History",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attachments_tab",
+   "fieldtype": "Tab Break",
+   "label": "Attachments"
+  },
+  {
+   "fieldname": "bike_image",
+   "fieldtype": "Attach Image",
+   "label": "Bike Image"
+  },
+  {
+   "fieldname": "attachments",
+   "fieldtype": "Attach",
+   "label": "Attachments"
+  }
+ ],
+ "image_field": "bike_image",
+ "modified": "2025-05-05 17:05:00.000000",
+ "modified_by": "Administrator",
+ "module": "BikeDoctor Workshop Management",
+ "name": "Bike Details",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Workshop Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Workshop Technician",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "bike_brand, bike_model, frame_number, owner",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}
