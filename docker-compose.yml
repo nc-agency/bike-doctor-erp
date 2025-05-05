@@ -1,153 +1,55 @@
-# Docker-Compose-Konfiguration für bike.doctor ERP basierend auf ERPNext
+# Docker-Compose-Konfiguration für bike.doctor ERP basierend auf ERPNext v14
 # Erstellt: 04.05.2025
 # Änderungen:
-# - Initiale Erstellung der Docker-Compose-Konfiguration für bike.doctor ERP
-# - Angepasst für die Fahrradwerkstatt bike.doctor
-# - Fix für den socketio-Container-Befehl
-# - Fehler im worker-Container behoben: Das Kommando wurde von "worker" auf "bench worker --queue default" geändert, um mit ERPNext v14 kompatibel zu sein.
-# - Redis-URLs im Format angepasst, das ERPNext v14 erwartet (redis://hostname:port/db)
-# - Befehl für erpnext-web-Container korrigiert, um auf das richtige Verzeichnis zu verweisen
-# - erpnext-web-Container angepasst, um 'yarn watch' anstelle von 'yarn start' zu verwenden
-# - Bikedoctor-App temporär entfernt, um ERPNext-Basis zu testen (2025-05-05)
-# - Datenbankkonfiguration korrigiert: Gleiche Benutzer und Passwörter in allen Containern (2025-05-05)
-# - Verbesserten Healthcheck für MariaDB hinzugefügt und 15-Sekunden-Verzögerung im App-Container (2025-05-05)
-# - Auf Initialisierungsscript (init-erpnext.sh) umgestellt für bessere Kontrolle und Fehlerbehebung (2025-05-05)
+# - Komplettes Redesign der Docker-Compose-Konfiguration basierend auf dem offiziellen ERPNext-Setup (2025-05-05)
+# - Vereinfachte Container-Struktur für stabilere Installation
+# - Standard-Setup aus der ERPNext-Dokumentation übernommen
 
-version: '3'
+version: '3.3'
 
 services:
-  traefik:
-    image: traefik:2.5
-    command:
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-    ports:
-      - "80:80"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-
-  redis:
-    image: redis:6
+  frappe-site:
+    image: frappe/erpnext:v14
     restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - SITE_NAME=bikedoctor.localhost
+      - DB_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=frappe
+      - ADMIN_PASSWORD=admin
+    command: >
+      bash -c "cd /home/frappe/frappe-bench &&
+              bench init-site bikedoctor.localhost &&
+              bench --site bikedoctor.localhost install-app erpnext &&
+              bench --site bikedoctor.localhost migrate &&
+              bench --site bikedoctor.localhost enable-scheduler &&
+              bench start"
+    depends_on:
+      - mariadb
+      - redis
+    volumes:
+      - frappe-sites:/home/frappe/frappe-bench/sites
+      - frappe-logs:/home/frappe/frappe-bench/logs
 
   mariadb:
     image: mariadb:10.6
     restart: always
-    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci', '--character-set-client-handshake=FALSE', '--innodb_file_per_table=1', '--innodb-file-format=Barracuda', '--innodb-large-prefix=1']
     environment:
       - MYSQL_ROOT_PASSWORD=frappe
-      - MYSQL_USER=frappe
-      - MYSQL_PASSWORD=frappe
-      - MYSQL_DATABASE=frappe
     volumes:
       - mariadb-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pfrappe"]
-      interval: 1s
-      retries: 15
-      timeout: 5s
-      start_period: 10s
+    ports:
+      - "3306:3306"
 
-  erpnext-app:
-    image: frappe/erpnext:v14
+  redis:
+    image: redis:alpine
     restart: always
-    command: ["/home/frappe/frappe-bench/sites/init-erpnext.sh"]
-    environment:
-      - FRAPPE_PY=0.0.0.0
-      - FRAPPE_WS=0.0.0.0
-      - FRAPPE_SITE_NAME_HEADER=bikedoctor.localhost
-      - ADMIN_PASSWORD=admin
-      - ENCRYPTION_KEY=kI6ioQdKtEdBgDhsQVFhSRXzmNOGOtjI
-      - DB_ROOT_PASSWORD=frappe
-      - DB_ROOT_USER=root
-      - DB_HOST=mariadb
-      - DB_PASSWORD=frappe
-      - DB_NAME=frappe
-      - PYTHONPATH=/home/frappe/frappe-bench/apps/frappe:/home/frappe/frappe-bench/apps/erpnext
-      - DB_TYPE=mariadb
-      - REDIS_CACHE=redis://redis:6379/0
-      - REDIS_QUEUE=redis://redis:6379/1
-      - REDIS_SOCKETIO=redis://redis:6379/2
     volumes:
-      - sites-data:/home/frappe/frappe-bench/sites
-      - logs-data:/home/frappe/frappe-bench/logs
-      - ./init-erpnext.sh:/home/frappe/frappe-bench/sites/init-erpnext.sh
-    depends_on:
-      - mariadb
-      - redis
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.erpnext-app.rule=Host(`bikedoctor.localhost`)"
-      - "traefik.http.routers.erpnext-app.entrypoints=web"
-      - "traefik.http.services.erpnext-app.loadbalancer.server.port=8000"
-
-  erpnext-worker:
-    image: frappe/erpnext:v14
-    restart: always
-    command: bench worker --queue default
-    environment:
-      - PYTHONPATH=/home/frappe/frappe-bench/apps/frappe:/home/frappe/frappe-bench/apps/erpnext
-      - ADMIN_PASSWORD=admin
-      - ENCRYPTION_KEY=kI6ioQdKtEdBgDhsQVFhSRXzmNOGOtjI
-      - DB_PASSWORD=frappe
-      - DB_NAME=frappe
-      - DB_ROOT_USER=root
-      - DB_TYPE=mariadb
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - REDIS_CACHE=redis://redis:6379/0
-      - REDIS_QUEUE=redis://redis:6379/1
-      - REDIS_SOCKETIO=redis://redis:6379/2
-    volumes:
-      - sites-data:/home/frappe/frappe-bench/sites
-      - logs-data:/home/frappe/frappe-bench/logs
-    depends_on:
-      - erpnext-app
-      - mariadb
-      - redis
-
-  erpnext-socketio:
-    image: frappe/erpnext:v14
-    restart: always
-    command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
-    environment:
-      - PYTHONPATH=/home/frappe/frappe-bench/apps/frappe:/home/frappe/frappe-bench/apps/erpnext
-      - ADMIN_PASSWORD=admin
-      - ENCRYPTION_KEY=kI6ioQdKtEdBgDhsQVFhSRXzmNOGOtjI
-      - DB_PASSWORD=frappe
-      - DB_NAME=frappe
-      - DB_TYPE=mariadb
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - REDIS_CACHE=redis://redis:6379/0
-      - REDIS_QUEUE=redis://redis:6379/1
-      - REDIS_SOCKETIO=redis://redis:6379/2
-    volumes:
-      - sites-data:/home/frappe/frappe-bench/sites
-      - logs-data:/home/frappe/frappe-bench/logs
-    depends_on:
-      - erpnext-app
-      - redis
-
-  erpnext-web:
-    image: frappe/erpnext:v14
-    restart: always
-    command: bash -c "cd /home/frappe/frappe-bench/apps/frappe && yarn watch"
-    environment:
-      - FRAPPE_PY=erpnext-app:8000
-      - FRAPPE_SOCKETIO=erpnext-socketio:9000
-      - FRAPPE_WS=erpnext-app:9001
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.erpnext-web.rule=Host(`bikedoctor.localhost`)"
-      - "traefik.http.routers.erpnext-web.entrypoints=web"
-      - "traefik.http.services.erpnext-web.loadbalancer.server.port=80"
-    depends_on:
-      - erpnext-app
-      - erpnext-socketio
+      - redis-data:/data
 
 volumes:
+  frappe-sites:
+  frappe-logs:
   mariadb-data:
-  sites-data:
-  logs-data:
+  redis-data:
