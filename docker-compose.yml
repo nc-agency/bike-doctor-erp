@@ -9,6 +9,7 @@
 # - Port-Exposition des Frontend-Containers für direkten Zugriff
 # - Hinzufügung der fehlenden MariaDB- und Redis-Dienste
 # - Custom-Apps-Verzeichnis als Volume eingebunden für bikedoctor-App
+# - Korrektur der Redis-Verbindung für Session-Handling
 
 x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
@@ -76,6 +77,11 @@ services:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
       - REDIS_SOCKETIO_URL=redis://redis:6379/2
+      - REDIS_CACHE=redis:6379
+      - REDIS_QUEUE=redis:6379
+      - REDIS_SOCKETIO=redis:6379
+      - BENCH_LOCAL_REDIS=0
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
 
   frontend:
     <<: *customizable_image
@@ -106,6 +112,10 @@ services:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
       - REDIS_SOCKETIO_URL=redis://redis:6379/2
+      - REDIS_CACHE=redis:6379
+      - REDIS_QUEUE=redis:6379
+      - REDIS_SOCKETIO=redis:6379
+      - BENCH_LOCAL_REDIS=0
 
   queue-long:
     <<: *backend_defaults
@@ -115,6 +125,10 @@ services:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
       - REDIS_SOCKETIO_URL=redis://redis:6379/2
+      - REDIS_CACHE=redis:6379
+      - REDIS_QUEUE=redis:6379
+      - REDIS_SOCKETIO=redis:6379
+      - BENCH_LOCAL_REDIS=0
 
   scheduler:
     <<: *backend_defaults
@@ -124,6 +138,10 @@ services:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
       - REDIS_SOCKETIO_URL=redis://redis:6379/2
+      - REDIS_CACHE=redis:6379
+      - REDIS_QUEUE=redis:6379
+      - REDIS_SOCKETIO=redis:6379
+      - BENCH_LOCAL_REDIS=0
 
   websocket:
     <<: *backend_defaults
@@ -133,6 +151,10 @@ services:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
       - REDIS_SOCKETIO_URL=redis://redis:6379/2
+      - REDIS_CACHE=redis:6379
+      - REDIS_QUEUE=redis:6379
+      - REDIS_SOCKETIO=redis:6379
+      - BENCH_LOCAL_REDIS=0
 
 # ERPNext requires local assets access (Frappe does not)
 volumes:
