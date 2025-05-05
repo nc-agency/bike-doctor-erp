@@ -1,8 +1,6 @@
 # Vereinfachte Installation für bike.doctor ERP
-# Erstellt am 2025-05-05
-# Diese Anleitung beschreibt die vereinfachte Installation des bike.doctor ERP-Systems
-
-# Vereinfachte Installation für bike.doctor ERP
+# Erstellt am: 2025-05-05
+# Letzte Änderung: Anleitung für die vereinfachte Docker-Installation und Konfiguration
 
 Diese Anleitung beschreibt eine vereinfachte Installation des bike.doctor ERP-Systems mit Docker, die weniger fehleranfällig ist als die komplexere Multi-Container-Konfiguration.
 
@@ -13,72 +11,89 @@ Diese Anleitung beschreibt eine vereinfachte Installation des bike.doctor ERP-Sy
 - Mindestens 4GB RAM und 2 CPU-Kerne
 - 10GB freier Festplattenspeicher
 
-## Schritt 1: Repository klonen (falls noch nicht geschehen)
+## Schritt 1: Bestehende Container bereinigen
+
+Um sauber zu starten, sollten alle bestehenden Container und Volumes entfernt werden:
 
 ```bash
-git clone https://github.com/nc-agency/bike-doctor-erp.git
-cd bike-doctor-erp
+# Stoppe und entferne alle bestehenden Container und deren Volumes
+docker-compose down -v
+
+# Entferne manuell alle Container, falls noch vorhanden
+docker rm -f bd-erpnext bd-mariadb bd-redis-cache bd-redis-queue bd-redis-socketio
+
+# Entferne ungenutzte Volumes
+docker volume prune -f
 ```
 
-## Schritt 2: Docker-Container starten
+## Schritt 2: Docker-Container mit vereinfachtem Setup starten
+
+Die vereinfachte Konfiguration nutzt das offizielle ERPNext-Worker-Image und montiert die bikedoctor-App direkt ein:
 
 ```bash
+# Starte das vereinfachte Setup
 docker-compose -f docker-compose.simple.yml up -d
 ```
 
 Die folgenden Container werden gestartet:
-- erpnext: Hauptanwendungsserver mit ERPNext
-- mariadb: Datenbank für ERPNext
-- redis-cache, redis-queue, redis-socketio: Redis-Instanzen für verschiedene Funktionen
+- bd-erpnext: Hauptanwendungsserver mit ERPNext
+- bd-mariadb: Datenbank für ERPNext
+- bd-redis-cache, bd-redis-queue, bd-redis-socketio: Redis-Instanzen für verschiedene Funktionen
 
-## Schritt 3: Auf die Installation warten
+## Schritt 3: Installation überwachen
 
-Die erste Installation dauert einige Minuten. Sie können den Fortschritt überwachen mit:
+Die erste Installation dauert einige Minuten. Du kannst den Fortschritt überwachen mit:
 
 ```bash
-docker logs -f erpnext
+docker logs -f bd-erpnext
 ```
 
-Warten Sie, bis Sie Meldungen sehen, die anzeigen, dass der Server bereit ist (z.B. "ERPNext server started").
+Warte, bis du Meldungen siehst, die anzeigen, dass der Server bereit ist (z.B. "ERPNext server started").
 
-## Schritt 4: Auf das System zugreifen
+## Schritt 4: ERPNext zugänglich machen
 
-1. Öffnen Sie einen Webbrowser und gehen Sie zu: [http://localhost:8000](http://localhost:8000)
-2. Falls die Domain nicht auflösbar ist, fügen Sie folgenden Eintrag zu Ihrer `/etc/hosts`-Datei hinzu:
+1. Öffne einen Webbrowser und gehe zu: [http://localhost:8000](http://localhost:8000)
+2. Falls die Domain nicht auflösbar ist, füge folgenden Eintrag zu deiner `/etc/hosts`-Datei hinzu:
    ```
    127.0.0.1 bikedoctor.localhost
    ```
-3. Melden Sie sich mit folgenden Anmeldedaten an:
+3. Melde dich mit folgenden Anmeldedaten an:
    - Benutzername: `Administrator`
    - Passwort: `admin`
 
-## Schritt 5: bike.doctor App installieren
+## Schritt 5: Überprüfung der Bikedoctor-App
 
-Sobald ERPNext läuft, können Sie die bike.doctor App installieren:
+Nach der Anmeldung solltest du die bikedoctor-App im System sehen. Du kannst dies in der ERPNext-Oberfläche überprüfen unter:
 
-```bash
-docker exec -it erpnext bench --site bikedoctor.localhost get-app bikedoctor /home/frappe/frappe-bench/apps/bikedoctor
-docker exec -it erpnext bench --site bikedoctor.localhost install-app bikedoctor
-docker exec -it erpnext bench --site bikedoctor.localhost clear-cache
 ```
+Einstellungen > Integrierte Apps
+```
+
+Die bikedoctor-App sollte in der Liste erscheinen.
 
 ## Fehlerbehebung
 
 ### Container starten nicht
-- Überprüfen Sie die Docker-Logs mit `docker logs erpnext`
-- Stellen Sie sicher, dass keine anderen Dienste die Ports belegen
+- Überprüfe die Docker-Logs mit `docker logs bd-erpnext`
+- Stelle sicher, dass keine anderen Dienste die Ports 8000 und 9000 belegen
+
+### BikeDoctor-App ist nicht installiert
+Wenn die App nicht in der Liste der installierten Apps erscheint, kannst du sie manuell installieren:
+```bash
+docker exec -it bd-erpnext bash -c "cd /home/frappe/frappe-bench && bench --site bikedoctor.localhost install-app bikedoctor"
+```
 
 ### Website nicht erreichbar
-- Überprüfen Sie, ob der ERPNext-Container läuft mit `docker ps`
-- Prüfen Sie, ob Sie bikedoctor.localhost in Ihrer /etc/hosts-Datei hinzugefügt haben
+- Überprüfe, ob der ERPNext-Container läuft mit `docker ps`
+- Prüfe, ob du bikedoctor.localhost in deiner /etc/hosts-Datei hinzugefügt hast
 
-### Um alle Container neu zu starten
+### Neustart bei Problemen
 ```bash
 docker-compose -f docker-compose.simple.yml down
 docker-compose -f docker-compose.simple.yml up -d
 ```
 
-### Um alle Daten zu löschen und neu zu beginnen
+### Vollständiger Reset
 ```bash
 docker-compose -f docker-compose.simple.yml down -v
 docker-compose -f docker-compose.simple.yml up -d
