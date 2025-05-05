@@ -7,6 +7,7 @@
 # - Einheitliche Datenbankbenutzer und Passwörter
 # - Redis-Konfiguration korrigiert für Docker-Networking mit REDIS_CACHE_URL
 # - Port-Exposition des Frontend-Containers für direkten Zugriff
+# - Hinzufügung der fehlenden MariaDB- und Redis-Dienste
 
 x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
@@ -27,6 +28,21 @@ x-backend-defaults: &backend_defaults
     - sites:/home/frappe/frappe-bench/sites
 
 services:
+  mariadb:
+    image: mariadb:10.6
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --skip-character-set-client-handshake --skip-innodb-read-only-compressed
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-frappe}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+
   configurator:
     <<: *backend_defaults
     platform: linux/amd64
@@ -126,3 +142,5 @@ services:
 # ERPNext requires local assets access (Frappe does not)
 volumes:
   sites:
+  mariadb-data:
+  redis-data:
