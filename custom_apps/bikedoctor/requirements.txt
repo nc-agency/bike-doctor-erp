@@ -1,0 +1,7 @@
+# bike.doctor App - Abhängigkeiten
+# Erstellt: 04.05.2025
+# Änderungen:
+# - Initiale Erstellung der requirements.txt für die bike.doctor-App
+
+frappe
+erpnext

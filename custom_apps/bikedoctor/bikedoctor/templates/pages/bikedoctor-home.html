@@ -1,0 +1,142 @@
+{% extends "templates/web.html" %}
+
+{# 
+  bike.doctor ERP - Homepage Template
+  Erstellt: 05.05.2025
+  Änderungen:
+  - Initiale Erstellung der Homepage für die bike.doctor-App
+  - Anpassung der Benutzeroberfläche für Fahrradwerkstatt-Funktionen
+#}
+
+{% block title %}bike.doctor - Fahrradwerkstatt-Managementsystem{% endblock %}
+
+{% block page_content %}
+<div class="bikedoctor-home-wrapper">
+  <div class="hero">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2 text-center">
+          <h1>bike.doctor</h1>
+          <p class="lead">Ihr Fahrradwerkstatt-Managementsystem</p>
+          <div class="mt-4">
+            <a href="/login" class="btn btn-primary btn-lg">Anmelden</a>
+            <a href="#features" class="btn btn-default btn-lg">Mehr erfahren</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="features" class="section">
+    <div class="container">
+      <h2 class="section-title text-center">Funktionen</h2>
+      <div class="row">
+        <div class="col-md-4 text-center feature">
+          <i class="fa fa-bicycle fa-3x"></i>
+          <h3>Fahrradmanagement</h3>
+          <p>Verwalten Sie alle Fahrräder Ihrer Kunden mit detaillierten technischen Informationen, Komponenten und Wartungshistorie.</p>
+        </div>
+        <div class="col-md-4 text-center feature">
+          <i class="fa fa-wrench fa-3x"></i>
+          <h3>Werkstattverwaltung</h3>
+          <p>Behalten Sie den Überblick über aktuelle Reparaturen, optimieren Sie Arbeitsabläufe und verfolgen Sie den Status jedes Auftrags.</p>
+        </div>
+        <div class="col-md-4 text-center feature">
+          <i class="fa fa-users fa-3x"></i>
+          <h3>Kundenverwaltung</h3>
+          <p>Pflegen Sie Kundendaten, verknüpfen Sie Fahrräder mit Besitzern und erstellen Sie automatische Benachrichtigungen.</p>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-4 text-center feature">
+          <i class="fa fa-calendar fa-3x"></i>
+          <h3>Terminplanung</h3>
+          <p>Organisieren Sie Werkstatttermine, planen Sie Technikereinsätze und vermeiden Sie Überlastungen.</p>
+        </div>
+        <div class="col-md-4 text-center feature">
+          <i class="fa fa-database fa-3x"></i>
+          <h3>Inventarmanagement</h3>
+          <p>Behalten Sie den Überblick über Ihr Lager, automatisieren Sie Nachbestellungen und verwalten Sie Teileverfügbarkeit.</p>
+        </div>
+        <div class="col-md-4 text-center feature">
+          <i class="fa fa-file-text fa-3x"></i>
+          <h3>Rechnungsstellung</h3>
+          <p>Erstellen Sie professionelle Rechnungen für Reparaturen und Teile und behalten Sie Ihre Finanzen im Blick.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h2>Über bike.doctor</h2>
+          <p>bike.doctor ist ein umfassendes Managementsystem, das speziell für Fahrradwerkstätten entwickelt wurde. Unsere Lösung vereinfacht die täglichen Abläufe, von der Annahme und Diagnose bis hin zur Reparatur, Wartung und Abrechnung.</p>
+          <p>Mit bike.doctor können Sie:</p>
+          <ul>
+            <li>Die Produktivität Ihrer Werkstatt steigern</li>
+            <li>Den Überblick über alle Fahrräder und deren Reparaturstatus behalten</li>
+            <li>Die Kundenzufriedenheit durch transparente Prozesse erhöhen</li>
+            <li>Ihre Betriebskosten durch effiziente Abläufe senken</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <img src="/assets/bikedoctor/images/workshop-management.jpg" alt="bike.doctor Werkstattverwaltung" class="img-responsive">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container text-center">
+      <h2>Bereit für den Einstieg?</h2>
+      <p class="lead">Optimieren Sie Ihre Fahrradwerkstatt mit bike.doctor</p>
+      <div class="mt-4">
+        <a href="/login" class="btn btn-primary btn-lg">Jetzt starten</a>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+  .bikedoctor-home-wrapper {
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .hero {
+    background-color: #5BC0DE;
+    color: white;
+    padding: 80px 0;
+    margin-bottom: 50px;
+  }
+  
+  .hero h1 {
+    font-size: 48px;
+    font-weight: bold;
+  }
+  
+  .section {
+    padding: 60px 0;
+  }
+  
+  .section-title {
+    margin-bottom: 40px;
+  }
+  
+  .feature {
+    margin-bottom: 30px;
+  }
+  
+  .feature i {
+    color: #5BC0DE;
+    margin-bottom: 20px;
+  }
+  
+  .bg-light {
+    background-color: #f8f9fa;
+  }
+</style>
+{% endblock %}

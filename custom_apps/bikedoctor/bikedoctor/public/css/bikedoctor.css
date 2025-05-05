@@ -1,0 +1,159 @@
+/*
+ * bike.doctor ERP - Hauptstylesheets
+ * 
+ * Erstellt: 05.05.2025
+ * Änderungen:
+ * - Initiale Erstellung des CSS für die bike.doctor-App
+ * - Anpassung der Farbschemas und UI-Elemente für die Fahrradwerkstatt
+ */
+
+/* Hauptfarbschema für bike.doctor */
+:root {
+  --bikedoctor-primary: #5BC0DE;
+  --bikedoctor-secondary: #4297B9;
+  --bikedoctor-accent: #FF9800;
+  --bikedoctor-light: #F8F9FA;
+  --bikedoctor-dark: #2C3E50;
+  --bikedoctor-success: #28a745;
+  --bikedoctor-warning: #FFC107;
+  --bikedoctor-danger: #DC3545;
+}
+
+/* Allgemeine Anpassungen */
+.bikedoctor-branding {
+  color: var(--bikedoctor-primary);
+}
+
+/* Anpassung des Hauptmenüs */
+.navbar-default {
+  background-color: var(--bikedoctor-primary);
+  border-color: var(--bikedoctor-secondary);
+}
+
+.navbar-default .navbar-brand {
+  color: white;
+  font-weight: bold;
+}
+
+.navbar-default .navbar-nav > li > a {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+  color: white;
+  background-color: var(--bikedoctor-secondary);
+}
+
+/* Dashboard-Kacheln */
+.bikedoctor-dashboard-widget {
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.bikedoctor-dashboard-widget:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.bikedoctor-dashboard-widget h3 {
+  margin-top: 0;
+  color: var(--bikedoctor-dark);
+}
+
+.bikedoctor-dashboard-widget .stat-value {
+  font-size: 36px;
+  font-weight: bold;
+  margin: 10px 0;
+  color: var(--bikedoctor-primary);
+}
+
+/* Status-Indikatoren für Reparaturen */
+.repair-status {
+  padding: 5px 10px;
+  border-radius: 3px;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.repair-status-new {
+  background-color: var(--bikedoctor-light);
+  color: var(--bikedoctor-dark);
+}
+
+.repair-status-in-progress {
+  background-color: var(--bikedoctor-primary);
+  color: white;
+}
+
+.repair-status-waiting {
+  background-color: var(--bikedoctor-warning);
+  color: var(--bikedoctor-dark);
+}
+
+.repair-status-completed {
+  background-color: var(--bikedoctor-success);
+  color: white;
+}
+
+.repair-status-cancelled {
+  background-color: var(--bikedoctor-danger);
+  color: white;
+}
+
+/* Fahrrad-Detailansicht */
+.bicycle-details {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -10px;
+}
+
+.bicycle-detail-item {
+  flex: 1 1 200px;
+  margin: 10px;
+  padding: 15px;
+  background-color: var(--bikedoctor-light);
+  border-radius: 4px;
+}
+
+.bicycle-detail-item .label {
+  color: var(--bikedoctor-dark);
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.bicycle-detail-item .value {
+  font-size: 16px;
+}
+
+/* Formulare und Eingabefelder */
+.bikedoctor-form .form-control:focus {
+  border-color: var(--bikedoctor-primary);
+  box-shadow: 0 0 0 0.2rem rgba(91, 192, 222, 0.25);
+}
+
+.bikedoctor-form .btn-primary {
+  background-color: var(--bikedoctor-primary);
+  border-color: var(--bikedoctor-primary);
+}
+
+.bikedoctor-form .btn-primary:hover,
+.bikedoctor-form .btn-primary:focus {
+  background-color: var(--bikedoctor-secondary);
+  border-color: var(--bikedoctor-secondary);
+}
+
+/* Responsive Design für mobile Ansicht */
+@media (max-width: 767px) {
+  .bicycle-detail-item {
+    flex: 1 1 100%;
+  }
+  
+  .bikedoctor-dashboard-widget .stat-value {
+    font-size: 24px;
+  }
+}
