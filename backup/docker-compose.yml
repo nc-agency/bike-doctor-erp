@@ -1,0 +1,57 @@
+# Docker-Compose-Konfiguration für bike.doctor ERP basierend auf ERPNext v14
+# Erstellt: 04.05.2025
+# Änderungen:
+# - Initiale Erstellung der Docker-Compose-Konfiguration für bike.doctor ERP
+# - Angepasst für die Fahrradwerkstatt bike.doctor
+# - Komplettes Redesign der Docker-Compose-Konfiguration basierend auf dem offiziellen ERPNext-Setup (2025-05-05)
+# - Vereinfachte Container-Struktur für stabilere Installation
+# - Standard-Setup aus der ERPNext-Dokumentation übernommen
+# - Korrektur des Befehls von init-site zu new-site (2025-05-05)
+
+version: '3.3'
+
+services:
+  frappe-site:
+    image: frappe/erpnext:v14
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - SITE_NAME=bikedoctor.localhost
+      - DB_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=frappe
+      - ADMIN_PASSWORD=admin
+    command: >
+      bash -c "cd /home/frappe/frappe-bench &&
+              bench new-site bikedoctor.localhost --db-name frappe --admin-password admin --mariadb-root-password frappe --db-root-username root --db-password frappe --install-app erpnext &&
+              bench --site bikedoctor.localhost migrate &&
+              bench --site bikedoctor.localhost enable-scheduler &&
+              bench start"
+    depends_on:
+      - mariadb
+      - redis
+    volumes:
+      - frappe-sites:/home/frappe/frappe-bench/sites
+      - frappe-logs:/home/frappe/frappe-bench/logs
+
+  mariadb:
+    image: mariadb:10.6
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=frappe
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis-data:/data
+
+volumes:
+  frappe-sites:
+  frappe-logs:
+  mariadb-data:
+  redis-data:
