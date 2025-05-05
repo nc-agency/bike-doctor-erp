@@ -5,65 +5,14 @@
 # - Angepasst für bike.doctor mit Site-Name bikedoctor.localhost
 # - Verwendung von ERPNext v15 (neueste Version)
 # - Einheitliche Datenbankbenutzer und Passwörter
-# - Redis-Konfiguration korrigiert für Docker-Networking mit REDIS_CACHE_URL
-# - Port-Exposition des Frontend-Containers für direkten Zugriff
-# - Hinzufügung der fehlenden MariaDB- und Redis-Dienste
+# - Korrektur der Redis-Verbindungen für Docker-Networking
 # - Custom-Apps-Verzeichnis als Volume eingebunden für bikedoctor-App
-# - Korrektur der Redis-Verbindung für Session-Handling
-# - Verwendung der optimierten Backend-Dockerfile mit Fehlerbehandlung
+# - Umfassende Konfiguration für Redis mit korrekt formatierten URLs
+# - Angepasste Befehle für redis_cache, redis_queue und redis_socketio
 
-x-customizable-image: &customizable_image
-  # By default the image used only contains the `frappe` and `erpnext` apps.
-  # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
-  # about using custom images.
-  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
-  pull_policy: ${PULL_POLICY:-always}
-  restart: ${RESTART_POLICY:-unless-stopped}
-
-x-customizable-backend-image: &customizable_backend_image
-  # Verwendet die optimierte Backend-Dockerfile mit verbesserten Funktionen
-  build:
-    context: .
-    dockerfile: backend.Dockerfile
-  pull_policy: ${PULL_POLICY:-always}
-  restart: ${RESTART_POLICY:-unless-stopped}
-
-x-depends-on-configurator: &depends_on_configurator
-  depends_on:
-    configurator:
-      condition: service_completed_successfully
-
-x-backend-defaults: &backend_defaults
-  <<: [*depends_on_configurator, *customizable_backend_image]
-  volumes:
-    - sites:/home/frappe/frappe-bench/sites
-    - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+version: '3'
 
 services:
-  mariadb:
-    image: mariadb:10.6
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
-      - --innodb-buffer-pool-size=${MARIADB_INNODB_BUFFER_POOL_SIZE:-512M}
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-frappe}
-      - MYSQL_USER=${DB_ROOT_USER:-root}
-      - MYSQL_PASSWORD=${DB_PASSWORD:-frappe}
-    volumes:
-      - mariadb-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    restart: on-failure
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=${DB_PASSWORD:-frappe}"]
-      timeout: 10s
-      retries: 10
-      start_period: 30s
-      interval: 10s
-
   redis:
     image: redis:alpine
     restart: on-failure
@@ -75,120 +24,145 @@ services:
       retries: 10
       interval: 5s
 
-  configurator:
-    <<: *customizable_image
-    platform: linux/amd64
+  mariadb:
+    image: mariadb:10.6
+    restart: on-failure
     command:
-      - configure.py
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+      - --innodb-buffer-pool-size=${MARIADB_INNODB_BUFFER_POOL_SIZE:-512M}
     environment:
-      DB_HOST: mariadb
-      DB_PORT: "3306"
-      REDIS_CACHE: redis:6379
-      REDIS_QUEUE: redis:6379
-      REDIS_SOCKETIO: redis:6379
-      SOCKETIO_PORT: "9000"
-      BENCH_LOCAL_REDIS: "0"
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-frappe}
+      - MYSQL_USER=${DB_ROOT_USER:-root}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-frappe}
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
-
-  backend:
-    <<: *backend_defaults
-    platform: linux/amd64
-    environment:
-      - REDIS_CACHE_URL=redis://redis:6379/0
-      - REDIS_QUEUE_URL=redis://redis:6379/1
-      - REDIS_SOCKETIO_URL=redis://redis:6379/2
-      - REDIS_CACHE=redis:6379
-      - REDIS_QUEUE=redis:6379
-      - REDIS_SOCKETIO=redis:6379
-      - BENCH_LOCAL_REDIS=0
-      - PYTHONPATH=/home/frappe/frappe-bench/apps
-      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-4}
+      - mariadb-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/method/ping"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=${DB_PASSWORD:-frappe}"]
       timeout: 10s
       retries: 10
       start_period: 30s
       interval: 10s
 
-  frontend:
-    <<: *customizable_image
-    platform: linux/amd64
-    command:
-      - nginx-entrypoint.sh
+  erpnext-python:
+    image: frappe/erpnext-worker:v15
+    restart: on-failure
     environment:
-      BACKEND: backend:8000
-      SOCKETIO: websocket:9000
-      FRAPPE_SITE_NAME_HEADER: ${FRAPPE_SITE_NAME_HEADER:-$$host}
-      UPSTREAM_REAL_IP_ADDRESS: ${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
-      UPSTREAM_REAL_IP_HEADER: ${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
-      UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
-      PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
-      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
-    ports:
-      - "80:8080"
-      - "443:443"
+      - FRAPPE_PY=0.0.0.0:8000
+      - FRAPPE_WS=0.0.0.0:9000
+      - WORKER_CLASS=gthread
+      - WORKER_CONNECTIONS=1024
+      - TIMEOUT=120
+      - REDIS_CACHE=redis://redis:6379/0
+      - REDIS_QUEUE=redis://redis:6379/1
+      - REDIS_SOCKETIO=redis://redis:6379/2
+      - AUTO_MIGRATE=1
+      - MARIADB_HOST=mariadb
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - ./custom_apps:/home/frappe/frappe-bench/custom_apps
     depends_on:
-      - backend
-      - websocket
+      - redis
+      - mariadb
 
-  queue-short:
-    <<: *backend_defaults
-    platform: linux/amd64
-    command: worker short
+  erpnext-socketio:
+    image: frappe/frappe-socketio:v15
+    restart: on-failure
+    depends_on:
+      - redis
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
     environment:
-      - REDIS_CACHE_URL=redis://redis:6379/0
-      - REDIS_QUEUE_URL=redis://redis:6379/1
-      - REDIS_SOCKETIO_URL=redis://redis:6379/2
-      - REDIS_CACHE=redis:6379
-      - REDIS_QUEUE=redis:6379
-      - REDIS_SOCKETIO=redis:6379
-      - BENCH_LOCAL_REDIS=0
+      - REDIS_CACHE=redis://redis:6379/0
+      - REDIS_QUEUE=redis://redis:6379/1
+      - REDIS_SOCKETIO=redis://redis:6379/2
 
-  queue-long:
-    <<: *backend_defaults
-    platform: linux/amd64
-    command: worker "long,default,short"
+  erpnext-worker-default:
+    image: frappe/erpnext-worker:v15
+    restart: on-failure
+    depends_on:
+      - redis
+      - mariadb
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
     environment:
-      - REDIS_CACHE_URL=redis://redis:6379/0
-      - REDIS_QUEUE_URL=redis://redis:6379/1
-      - REDIS_SOCKETIO_URL=redis://redis:6379/2
-      - REDIS_CACHE=redis:6379
-      - REDIS_QUEUE=redis:6379
-      - REDIS_SOCKETIO=redis:6379
-      - BENCH_LOCAL_REDIS=0
+      - WORKER_TYPE=default
+      - REDIS_CACHE=redis://redis:6379/0
+      - REDIS_QUEUE=redis://redis:6379/1
+      - REDIS_SOCKETIO=redis://redis:6379/2
+      - MARIADB_HOST=mariadb
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
 
-  scheduler:
-    <<: *backend_defaults
-    platform: linux/amd64
-    command: scheduler
+  erpnext-worker-short:
+    image: frappe/erpnext-worker:v15
+    restart: on-failure
+    depends_on:
+      - redis
+      - mariadb
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
     environment:
-      - REDIS_CACHE_URL=redis://redis:6379/0
-      - REDIS_QUEUE_URL=redis://redis:6379/1
-      - REDIS_SOCKETIO_URL=redis://redis:6379/2
-      - REDIS_CACHE=redis:6379
-      - REDIS_QUEUE=redis:6379
-      - REDIS_SOCKETIO=redis:6379
-      - BENCH_LOCAL_REDIS=0
+      - WORKER_TYPE=short
+      - REDIS_CACHE=redis://redis:6379/0
+      - REDIS_QUEUE=redis://redis:6379/1
+      - REDIS_SOCKETIO=redis://redis:6379/2
+      - MARIADB_HOST=mariadb
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
 
-  websocket:
-    <<: *backend_defaults
-    platform: linux/amd64
-    command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
+  erpnext-worker-long:
+    image: frappe/erpnext-worker:v15
+    restart: on-failure
+    depends_on:
+      - redis
+      - mariadb
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
     environment:
-      - REDIS_CACHE_URL=redis://redis:6379/0
-      - REDIS_QUEUE_URL=redis://redis:6379/1
-      - REDIS_SOCKETIO_URL=redis://redis:6379/2
-      - REDIS_CACHE=redis:6379
-      - REDIS_QUEUE=redis:6379
-      - REDIS_SOCKETIO=redis:6379
-      - BENCH_LOCAL_REDIS=0
+      - WORKER_TYPE=long
+      - REDIS_CACHE=redis://redis:6379/0
+      - REDIS_QUEUE=redis://redis:6379/1
+      - REDIS_SOCKETIO=redis://redis:6379/2
+      - MARIADB_HOST=mariadb
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
 
-# ERPNext requires local assets access (Frappe does not)
+  erpnext-scheduler:
+    image: frappe/erpnext-worker:v15
+    restart: on-failure
+    depends_on:
+      - redis
+      - mariadb
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+    environment:
+      - WORKER_TYPE=scheduler
+      - REDIS_CACHE=redis://redis:6379/0
+      - REDIS_QUEUE=redis://redis:6379/1
+      - REDIS_SOCKETIO=redis://redis:6379/2
+      - MARIADB_HOST=mariadb
+      - PYTHONPATH=/home/frappe/frappe-bench/apps
+
+  erpnext-nginx:
+    image: frappe/erpnext-nginx:v15
+    restart: on-failure
+    depends_on:
+      - erpnext-python
+      - erpnext-socketio
+    ports:
+      - "80:8080"
+      - "443:443"
+    volumes:
+      - sites:/usr/share/nginx/html/sites
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+
 volumes:
   sites:
   mariadb-data:
