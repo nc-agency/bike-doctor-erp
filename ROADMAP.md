@@ -5,6 +5,7 @@ Erstellt: 05.05.2025
 - Initiale Erstellung der Roadmap für das bike.doctor ERP-System
 - Aktualisierung: Erstellung der Bicycle Management und Notifications Module
 - Aktualisierung des Fortschritts bei der Einrichtung der Systemumgebung und der initialen Datenbank
+- Update 05.05.2025: ERPNext-Installation abgeschlossen und bikedoctor-App erfolgreich integriert
 
 ## Übersicht
 
@@ -28,7 +29,9 @@ Diese Roadmap dokumentiert den detaillierten Implementierungsplan für das bike.
 - [ ] E-Mail-Integration für Benachrichtigungen einrichten
 
 ### Meilenstein 1.3: Benutzerdefinierte App aktivieren (Tag 6-10)
-- [ ] App im ERPNext-System registrieren
+- [x] App im ERPNext-System registrieren
+- [x] App in Docker-Container integrieren
+- [x] App in site_config.json und PYTHONPATH konfigurieren
 - [ ] Grundlegende Tests der DocTypes durchführen
 - [ ] Fehler beheben und Anpassungen vornehmen
 - [ ] Benutzeroberfläche für bike.doctor anpassen
@@ -99,86 +102,20 @@ Diese Roadmap dokumentiert den detaillierten Implementierungsplan für das bike.
 ### Meilenstein 4.3: Leistungsoptimierung (Tag 51-55)
 - [ ] Performance-Monitoring einrichten
 - [ ] Datenbank-Optimierung durchführen
-- [ ] Backup-Strategie implementieren
-- [ ] Lasttest unter realistischen Bedingungen durchführen
-- [ ] Fehlerbehandlung und Logging verbessern
+- [ ] Backup- und Wiederherstellungsstrategien implementieren
+- [ ] Skalierbarkeitstest durchführen
+- [ ] Endbenutzer-Feedback einholen und abschließende Anpassungen vornehmen
 
-## Phase 5: Schulung und Inbetriebnahme (Woche 9-10)
+## Erreichter Fortschritt und nächste Schritte
 
-### Meilenstein 5.1: Dokumentation (Tag 56-60)
-- [ ] Benutzerhandbuch erstellen
-- [ ] Administratorhandbuch verfassen
-- [ ] Schulungsunterlagen für verschiedene Rollen vorbereiten
-- [ ] Prozessbeschreibungen dokumentieren
-- [ ] Fehlerbehebungsanleitung erstellen
+### Erreichte Meilensteine (Stand 05.05.2025):
+- Docker-basierte ERPNext v15 Installation erfolgreich eingerichtet
+- bikedoctor-App erfolgreich in das System integriert
+- Grundlegende Datenbankstruktur konfiguriert
+- PYTHONPATH und Docker-Volumes für App-Integration konfiguriert
 
-### Meilenstein 5.2: Schulung (Tag 61-65)
-- [ ] Administration und Konfiguration schulen
-- [ ] Techniker im Umgang mit dem System schulen
-- [ ] Verkaufspersonal schulen (Kasse, Kundenverwaltung)
-- [ ] Management in Berichtswesen und Controlling einführen
-- [ ] Support-Team auf Benutzerunterstützung vorbereiten
-
-### Meilenstein 5.3: Inbetriebnahme (Tag 66-70)
-- [ ] Datenmigration aus bestehenden Systemen
-- [ ] Pilotbetrieb mit ausgewählten Funktionen
-- [ ] Schrittweise Übernahme aller Geschäftsprozesse
-- [ ] Überwachung und schnelle Fehlerbehebung
-- [ ] Optimierung basierend auf ersten Erfahrungen
-
-## Ressourcenanforderungen
-
-### Hardware
-- Server mit mindestens 8GB RAM und 4 CPU-Kernen für Produktivbetrieb
-- 100GB SSD-Speicher für Datenbank und Anhänge
-- Ausreichende Internetbandbreite für Cloud-Synchronisation
-
-### Software
-- Docker und Docker Compose
-- ERPNext v14
-- MariaDB 10.6
-- Redis 6
-- Nginx/Traefik als Reverse Proxy
-
-### Personal
-- 1 Projektmanager (40% Auslastung)
-- 1 ERPNext-Entwickler (100% Auslastung)
-- 1 UI/UX-Designer (30% Auslastung während Anpassungsphase)
-- Ihre internen Experten (ca. 20% Auslastung während Implementierung)
-
-## Risiken und Abhängigkeiten
-
-### Kritische Erfolgsfaktoren
-- Verfügbarkeit der Schlüsselpersonen für Entscheidungen und Testing
-- Qualität der zu migrierenden Daten
-- Akzeptanz des Systems durch die Benutzer
-- Stabilität der Internetverbindung für Cloud-Funktionen
-
-### Risikominderung
-- Regelmäßige Backups während der Implementierung
-- Iteratives Vorgehen mit häufigem Feedback
-- Ausführliche Schulung aller Benutzer
-- Parallelbetrieb in kritischen Phasen
-
-## Wartung und Support nach Inbetriebnahme
-
-### Regelmäßige Wartung
-- Tägliche automatische Backups
-- Wöchentliche Datenbank-Optimierung
-- Monatliche Sicherheitsupdates
-- Quartalsweise Funktionsupdates
-
-### Support-Optionen
-- E-Mail-Support (Reaktionszeit: 24 Stunden)
-- Telefon-Hotline für kritische Probleme
-- Remote-Support via Teamviewer/AnyDesk
-- Jährlicher System-Gesundheitscheck
-
-## Erweiterungsoptionen für die Zukunft
-
-### Phase 6: Erweiterungen (nach Bedarf)
-- Kundentreueprogramm
-- Erweiterte Analysen und Business Intelligence
-- Führerschein- und Versicherungsverwaltung für E-Bikes
-- Integration mit Lieferservices
-- Flottenmanagement für Leihräder und Testbikes
+### Nächste Schritte priorisiert:
+1. Benutzer und Berechtigungen einrichten
+2. Unternehmensdaten und Firmeneinstellungen konfigurieren 
+3. Testen der implementierten DocTypes (Bicycle, Bicycle_Component, etc.)
+4. Anpassung der Benutzeroberfläche für die Fahrradwerkstatt
