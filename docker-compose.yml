@@ -1,192 +1,196 @@
 # Docker-Compose-Konfiguration für bike.doctor ERPNext-System
-# Basierend auf offizieller frappe_docker Easy Install-Implementierung
+# Basierend auf offizieller frappe_docker-Implementierung
 # Zuletzt aktualisiert: 2025-05-05
-# Erstellt für die Behebung von Redis-Verbindungsproblemen
-# Änderungen:
-# - Getrennte Redis-Dienste für Cache, Queue und SocketIO
-# - Korrekte Image-Tags für ERPNext v15
-# - BENCH_LOCAL_REDIS=0 explizit gesetzt
-# - Spezifische Umgebungsvariablen für Redis-Hosts
-# - Korrekte Docker-Image-Namen entsprechend offiziellem Repository
+# Änderungen: 
+# - Anpassung an das offizielle Compose-File aus frappe_docker
+# - Konfiguration für Docker-Compose statt Docker Stack
+# - Ergänzung mit Override-Datei für benutzerdefinierte Anpassungen
+# - Anpassung des Override-Dateinamens für Konsistenz (docker-compose.override.yml)
+# - Sicherstellen der korrekten Redis-Konfiguration für Docker-Networking
 
-version: '3'
+x-customizable-image: &customizable_image
+  # By default the image used only contains the `frappe` and `erpnext` apps.
+  # See https://github.com/frappe/frappe_docker/blob/main/docs/custom-apps.md
+  # about using custom images.
+  image: ${CUSTOM_IMAGE:-frappe/erpnext}:${CUSTOM_TAG:-$ERPNEXT_VERSION}
+  pull_policy: ${PULL_POLICY:-always}
+  restart: ${RESTART_POLICY:-unless-stopped}
+
+x-depends-on-configurator: &depends_on_configurator
+  depends_on:
+    configurator:
+      condition: service_completed_successfully
+
+x-backend-defaults: &backend_defaults
+  <<: [*depends_on_configurator, *customizable_image]
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
 
 services:
-  redis-cache:
-    image: redis:alpine
-    restart: on-failure
-    volumes:
-      - redis-cache-data:/data
-
-  redis-queue:
-    image: redis:alpine
-    restart: on-failure
-    volumes:
-      - redis-queue-data:/data
-
-  redis-socketio:
-    image: redis:alpine
-    restart: on-failure
-    volumes:
-      - redis-socketio-data:/data
-
-  mariadb:
-    image: mariadb:10.6
-    restart: on-failure
+  configurator:
+    <<: *customizable_image
+    command:
+      - bash
+      - -c
+      - >
+        [ -z "${NO_MIGRATE-}" ] && migrate=true || migrate=false &&
+        bench init --skip-redis-config-generation --skip-assets --frappe-branch $FRAPPE_VERSION frappe-bench &&
+        cd frappe-bench &&
+        bench set-config -g db_host ${DB_HOST} &&
+        bench set-config -gp db_port ${DB_PORT} &&
+        bench set-config -g redis_cache ${REDIS_CACHE} &&
+        bench set-config -g redis_queue ${REDIS_QUEUE} &&
+        bench set-config -g redis_socketio ${REDIS_SOCKETIO} &&
+        bench new-site --db-root-password ${DB_ROOT_PASSWORD} --admin-password ${ADMIN_PASSWORD} --no-mariadb-socket ${SITE_NAME} &&
+        [[ $migrate = true ]] && bench --site ${SITE_NAME} set-config server_script_enabled 1 &&
+        bench --site ${SITE_NAME} set-config apps_path "/home/frappe/frappe-bench/apps.json"
     environment:
-      - MYSQL_ROOT_PASSWORD=frappe
+      - FRAPPE_VERSION=${FRAPPE_VERSION}
+      - SITE_NAME=${SITE_NAME:-frappe.localhost}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-frappe}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - DB_HOST=${DB_HOST:-mariadb}
+      - DB_PORT=${DB_PORT:-3306}
+      - REDIS_CACHE=${REDIS_CACHE:-redis://redis-cache:6379/0}
+      - REDIS_QUEUE=${REDIS_QUEUE:-redis://redis-queue:6379/1}
+      - REDIS_SOCKETIO=${REDIS_SOCKETIO:-redis://redis-socketio:6379/2}
     volumes:
-      - mariadb-data:/var/lib/mysql
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
-  frappe:
-    image: frappe/bench:latest
-    restart: on-failure
+  backend:
+    <<: *backend_defaults
+    deploy:
+      resources:
+        limits:
+          cpus: "${BACKEND_CPUS_LIMIT:-0}"
+          memory: "${BACKEND_MEMORY_LIMIT:-0}"
+        reservations:
+          cpus: "${BACKEND_CPUS_RESERVATION:-0}"
+          memory: "${BACKEND_MEMORY_RESERVATION:-0}"
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+
+  frontend:
+    <<: *customizable_image
+    command:
+      - nginx-entrypoint.sh
+    deploy:
+      resources:
+        limits:
+          cpus: "${FRONTEND_CPUS_LIMIT:-0}"
+          memory: "${FRONTEND_MEMORY_LIMIT:-0}"
+        reservations:
+          cpus: "${FRONTEND_CPUS_RESERVATION:-0}"
+          memory: "${FRONTEND_MEMORY_RESERVATION:-0}"
     environment:
-      - REDIS_CACHE_HOST=redis-cache
-      - REDIS_QUEUE_HOST=redis-queue
-      - REDIS_SOCKETIO_HOST=redis-socketio
-      - MARIADB_HOST=mariadb
-      - DB_ROOT_USER=root
-      - DB_ROOT_PASSWORD=frappe
-      - SITE_NAME=bikedoctor.localhost
-      - ADMIN_PASSWORD=admin
-      - INSTALL_APPS=erpnext
-      - BENCH_LOCAL_REDIS=0
+      - FRAPPE_SITE_NAME_HEADER=${FRAPPE_SITE_NAME_HEADER:-$$host}
+      - UPSTREAM_REAL_IP_ADDRESS=${UPSTREAM_REAL_IP_ADDRESS:-127.0.0.1}
+      - UPSTREAM_REAL_IP_HEADER=${UPSTREAM_REAL_IP_HEADER:-X-Forwarded-For}
+      - UPSTREAM_REAL_IP_RECURSIVE=${UPSTREAM_REAL_IP_RECURSIVE:-off}
+      - PROXY_READ_TIMEOUT=${PROXY_READ_TIMEOUT:-120}
+      - CLIENT_MAX_BODY_SIZE=${CLIENT_MAX_BODY_SIZE:-50m}
     volumes:
-      - frappe-sites:/home/frappe/frappe-bench/sites
-      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+      - sites:/usr/share/nginx/html/sites
     depends_on:
-      - redis-cache
-      - redis-queue
-      - redis-socketio
-      - mariadb
-
-  erpnext:
-    image: frappe/bench:latest
-    restart: on-failure
-    environment:
-      - REDIS_CACHE_HOST=redis-cache
-      - REDIS_QUEUE_HOST=redis-queue
-      - REDIS_SOCKETIO_HOST=redis-socketio
-      - MARIADB_HOST=mariadb
-      - DB_ROOT_USER=root
-      - DB_ROOT_PASSWORD=frappe
-      - PYTHONPATH=/home/frappe/frappe-bench/apps
-      - BENCH_LOCAL_REDIS=0
-    volumes:
-      - frappe-sites:/home/frappe/frappe-bench/sites
-      - frappe-logs:/home/frappe/frappe-bench/logs
-      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
-    depends_on:
-      - frappe
-      - redis-cache
-      - redis-queue
-      - redis-socketio
-      - mariadb
-
-  websocket:
-    image: frappe/bench:latest
-    restart: on-failure
-    command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
-    environment:
-      - REDIS_CACHE_HOST=redis-cache
-      - REDIS_QUEUE_HOST=redis-queue
-      - REDIS_SOCKETIO_HOST=redis-socketio
-      - BENCH_LOCAL_REDIS=0
-    volumes:
-      - frappe-sites:/home/frappe/frappe-bench/sites
-    depends_on:
-      - redis-socketio
-      - frappe
-
-  web:
-    image: nginx:alpine
-    restart: on-failure
-    volumes:
-      - frappe-sites:/usr/share/nginx/html/sites
-      - frappe-assets:/usr/share/nginx/html/assets
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - frappe
-      - erpnext
+      - backend
       - websocket
 
-  worker-default:
-    image: frappe/bench:latest
-    restart: on-failure
-    command: bench worker --queue default
-    environment:
-      - REDIS_CACHE_HOST=redis-cache
-      - REDIS_QUEUE_HOST=redis-queue
-      - REDIS_SOCKETIO_HOST=redis-socketio
-      - BENCH_LOCAL_REDIS=0
-      - PYTHONPATH=/home/frappe/frappe-bench/apps
+  queue-short:
+    <<: *backend_defaults
+    command:
+      - bench
+      - worker
+      - --queue
+      - short
+    deploy:
+      resources:
+        limits:
+          cpus: "${SHORT_QUEUE_CPUS_LIMIT:-0}"
+          memory: "${SHORT_QUEUE_MEMORY_LIMIT:-0}"
+        reservations:
+          cpus: "${SHORT_QUEUE_CPUS_RESERVATION:-0}"
+          memory: "${SHORT_QUEUE_MEMORY_RESERVATION:-0}"
     volumes:
-      - frappe-sites:/home/frappe/frappe-bench/sites
-      - frappe-logs:/home/frappe/frappe-bench/logs
-    depends_on:
-      - redis-queue
-      - erpnext
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
-  worker-short:
-    image: frappe/bench:latest
-    restart: on-failure
-    command: bench worker --queue short
-    environment:
-      - REDIS_CACHE_HOST=redis-cache
-      - REDIS_QUEUE_HOST=redis-queue
-      - REDIS_SOCKETIO_HOST=redis-socketio
-      - BENCH_LOCAL_REDIS=0
-      - PYTHONPATH=/home/frappe/frappe-bench/apps
+  queue-long:
+    <<: *backend_defaults
+    command:
+      - bench
+      - worker
+      - --queue
+      - long
+    deploy:
+      resources:
+        limits:
+          cpus: "${LONG_QUEUE_CPUS_LIMIT:-0}"
+          memory: "${LONG_QUEUE_MEMORY_LIMIT:-0}"
+        reservations:
+          cpus: "${LONG_QUEUE_CPUS_RESERVATION:-0}"
+          memory: "${LONG_QUEUE_MEMORY_RESERVATION:-0}"
     volumes:
-      - frappe-sites:/home/frappe/frappe-bench/sites
-      - frappe-logs:/home/frappe/frappe-bench/logs
-    depends_on:
-      - redis-queue
-      - erpnext
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
-  worker-long:
-    image: frappe/bench:latest
-    restart: on-failure
-    command: bench worker --queue long
-    environment:
-      - REDIS_CACHE_HOST=redis-cache
-      - REDIS_QUEUE_HOST=redis-queue
-      - REDIS_SOCKETIO_HOST=redis-socketio
-      - BENCH_LOCAL_REDIS=0
-      - PYTHONPATH=/home/frappe/frappe-bench/apps
+  queue-default:
+    <<: *backend_defaults
+    command:
+      - bench
+      - worker
+      - --queue
+      - default
+    deploy:
+      resources:
+        limits:
+          cpus: "${DEFAULT_QUEUE_CPUS_LIMIT:-0}"
+          memory: "${DEFAULT_QUEUE_MEMORY_LIMIT:-0}"
+        reservations:
+          cpus: "${DEFAULT_QUEUE_CPUS_RESERVATION:-0}"
+          memory: "${DEFAULT_QUEUE_MEMORY_RESERVATION:-0}"
     volumes:
-      - frappe-sites:/home/frappe/frappe-bench/sites
-      - frappe-logs:/home/frappe/frappe-bench/logs
-    depends_on:
-      - redis-queue
-      - erpnext
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
   scheduler:
-    image: frappe/bench:latest
-    restart: on-failure
-    command: bench schedule
-    environment:
-      - REDIS_CACHE_HOST=redis-cache
-      - REDIS_QUEUE_HOST=redis-queue
-      - REDIS_SOCKETIO_HOST=redis-socketio
-      - BENCH_LOCAL_REDIS=0
-      - PYTHONPATH=/home/frappe/frappe-bench/apps
+    <<: *backend_defaults
+    command:
+      - bench
+      - schedule
+    deploy:
+      resources:
+        limits:
+          cpus: "${SCHEDULER_CPUS_LIMIT:-0}"
+          memory: "${SCHEDULER_MEMORY_LIMIT:-0}"
+        reservations:
+          cpus: "${SCHEDULER_CPUS_RESERVATION:-0}"
+          memory: "${SCHEDULER_MEMORY_RESERVATION:-0}"
     volumes:
-      - frappe-sites:/home/frappe/frappe-bench/sites
-      - frappe-logs:/home/frappe/frappe-bench/logs
-    depends_on:
-      - redis-queue
-      - erpnext
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+
+  websocket:
+    <<: *backend_defaults
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    deploy:
+      resources:
+        limits:
+          cpus: "${WEBSOCKET_CPUS_LIMIT:-0}"
+          memory: "${WEBSOCKET_MEMORY_LIMIT:-0}"
+        reservations:
+          cpus: "${WEBSOCKET_CPUS_RESERVATION:-0}"
+          memory: "${WEBSOCKET_MEMORY_RESERVATION:-0}"
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
 volumes:
-  frappe-sites:
-  frappe-logs:
-  frappe-assets:
-  mariadb-data:
-  redis-cache-data:
-  redis-queue-data:
-  redis-socketio-data:
+  sites:
+  logs:
+
+# If you use docker stack deploy use the override.yaml file to configure persistant volumes
+# Refer to docker-compose.override.yml for configuration
