@@ -1,0 +1,22 @@
+# docker-compose.minimal.yml
+# Erstellt am: 2025-05-05
+# Letzte Änderung: Absolut minimales Setup mit einem einzelnen All-in-One Container
+
+version: '3'
+
+services:
+  erpnext:
+    image: frappe/erpnext:v15.0.0
+    container_name: erpnext-minimal
+    restart: always
+    ports:
+      - "8080:8000"
+    volumes:
+      - erpnext-data:/var/lib/frappe
+    environment:
+      - ADMIN_PASSWORD=admin
+      - INSTALL_APPS=erpnext
+      - DEVELOPER_MODE=1
+
+volumes:
+  erpnext-data:
