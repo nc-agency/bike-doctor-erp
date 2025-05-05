@@ -6,6 +6,7 @@
 # - Verwendung von ERPNext v15 (neueste Version)
 # - Einheitliche Datenbankbenutzer und Passwörter
 # - Redis-Konfiguration korrigiert für Docker-Networking mit REDIS_CACHE_URL
+# - Port-Exposition des Frontend-Containers für direkten Zugriff
 
 x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
@@ -73,6 +74,9 @@ services:
       UPSTREAM_REAL_IP_RECURSIVE: ${UPSTREAM_REAL_IP_RECURSIVE:-off}
       PROXY_READ_TIMEOUT: ${PROXY_READ_TIMEOUT:-120}
       CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-50m}
+    ports:
+      - "80:8080"
+      - "443:443"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
     depends_on:
