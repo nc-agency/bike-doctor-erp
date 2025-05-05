@@ -1,121 +1,122 @@
-# bike.doctor ERP - Detaillierte Implementierungs-Roadmap
+# ROADMAP für bike.doctor ERP-System
+# Erstellt: April 2025
+# Letzte Aktualisierung: 05.05.2025
+# Änderungen:
+# - Meilenstein 1 erreicht: ERPNext v15 Installation abgeschlossen
+# - Meilenstein 2 erreicht: Custom App bikedoctor integriert
+# - Redis-Konfigurationsproblem behoben
+# - Synchronisierungs-Tooling hinzugefügt
 
-Erstellt: 05.05.2025
-Änderungen:
-- Initiale Erstellung der Roadmap für das bike.doctor ERP-System
-- Aktualisierung: Erstellung der Bicycle Management und Notifications Module
-- Aktualisierung des Fortschritts bei der Einrichtung der Systemumgebung und der initialen Datenbank
-- Update 05.05.2025: ERPNext-Installation abgeschlossen und bikedoctor-App erfolgreich integriert
+## Einleitung
 
-## Übersicht
+Diese Roadmap skizziert die geplanten Entwicklungsphasen für das bike.doctor ERP-System. Das Ziel ist es, eine vollständige ERPNext-basierte Lösung für die Fahrradwerkstatt zu implementieren.
 
-Diese Roadmap dokumentiert den detaillierten Implementierungsplan für das bike.doctor ERP-System. Sie ist in Phasen unterteilt, mit klaren Meilensteinen und Zeitvorgaben.
+## Phasen und Meilensteine
 
-## Phase 1: Grundinstallation und Basiskonfiguration (Woche 1-2)
+### Phase 1: Grundinstallation und Setup (✅ ABGESCHLOSSEN)
 
-### Meilenstein 1.1: Systemumgebung aufsetzen (Tag 1-2)
-- [x] Docker-Umgebung mit ERPNext einrichten
-- [x] Grundstruktur der benutzerdefinierten App erstellen
-- [x] Core DocTypes definieren (Bicycle, Bicycle Repair, etc.)
-- [x] Initiale Module für Bicycle Management und Benachrichtigungen erstellen
-- [x] Initiale Datenbank einrichten und konfigurieren
-- [ ] Benutzer und Berechtigungen einrichten
+- ✅ ERPNext v15 in Docker-Umgebung installieren
+- ✅ Konfiguration der Datenbank, Redis und anderer Services
+- ✅ Einrichtung der Domain bikedoctor.localhost
+- ✅ Erstellung der grundlegenden Admin-Accounts
+- ✅ Initialisierung des Projekts mit Versionskontrolle
 
-### Meilenstein 1.2: ERPNext-Grundkonfiguration (Tag 3-5)
-- [ ] Unternehmensdaten und Firmeneinstellungen einrichten
-- [ ] Währungen und Steuersätze konfigurieren
-- [ ] Lager- und Lagerbereiche definieren
-- [ ] Nummernkreise und Benennungsregeln anpassen
-- [ ] E-Mail-Integration für Benachrichtigungen einrichten
+### Phase 2: Integration der bikedoctor-App (✅ ABGESCHLOSSEN)
 
-### Meilenstein 1.3: Benutzerdefinierte App aktivieren (Tag 6-10)
-- [x] App im ERPNext-System registrieren
-- [x] App in Docker-Container integrieren
-- [x] App in site_config.json und PYTHONPATH konfigurieren
-- [ ] Grundlegende Tests der DocTypes durchführen
-- [ ] Fehler beheben und Anpassungen vornehmen
-- [ ] Benutzeroberfläche für bike.doctor anpassen
-- [ ] Benutzerschulung für Administratoren
+- ✅ Erstellung der bikedoctor Custom App
+- ✅ Integration in das ERPNext-System
+- ✅ Konfiguration der Berechtigungen
+- ✅ Konfiguration des PYTHONPATH für die App
+- ✅ Behebung von Redis-Verbindungsproblemen
+- ✅ Erstellung des Update- und Synchronisierungsskripts
 
-## Phase 2: Datenmodellierung und Stammdaten (Woche 3-4)
+### Phase 3: Datenmodellierung für die Fahrradwerkstatt (🔄 IN BEARBEITUNG)
 
-### Meilenstein 2.1: Fahrradkatalog und Komponenten (Tag 11-15)
-- [ ] Produktkategorien für Fahrradteile definieren
-- [ ] Standartkategorien für Fahrradtypen anlegen
-- [ ] Herstellerdaten importieren/anlegen
-- [ ] Häufig verwendete Teile im Artikelstamm anlegen
-- [ ] Komponentenbeziehungen modellieren
+- ⬜ Definition der DocTypes für die Werkstatt:
+  - ⬜ Fahrrad (Bicycle)
+  - ⬜ Fahrradkomponenten (Bicycle Components)
+  - ⬜ Reparaturauftrag (Repair Order)
+  - ⬜ Werkzeuge (Tools)
+  - ⬜ Lagerbestand (Inventory)
+- ⬜ Einrichtung der Beziehungen zwischen den DocTypes
+- ⬜ Implementierung der Validierungslogik
+- ⬜ Erstellung der Suchfunktionen
 
-### Meilenstein 2.2: Werkstattprozesse definieren (Tag 16-20)
-- [ ] Werkstattbereiche und Arbeitsplätze definieren
-- [ ] Standard-Reparaturpakete einrichten
-- [ ] Workflows für Reparaturabläufe definieren
-- [ ] Statusübergänge und Genehmigungsprozesse einrichten
-- [ ] Arbeitsabläufe für verschiedene Reparaturarten definieren
+### Phase 4: Geschäftsprozessmodellierung
 
-### Meilenstein 2.3: Finanzkonfiguration (Tag 21-25)
-- [ ] Kontenplan anpassen
-- [ ] Preislisten für Dienstleistungen erstellen
-- [ ] Arbeitskosten und Materialzuschläge definieren
-- [ ] Rabattsysteme einrichten
-- [ ] Steuerregelungen für Dienstleistungen und Teile konfigurieren
+- ⬜ Modellierung des Reparaturprozesses
+  - ⬜ Auftragsannahme
+  - ⬜ Diagnose
+  - ⬜ Kostenvoranschlag
+  - ⬜ Reparatur
+  - ⬜ Qualitätskontrolle
+  - ⬜ Übergabe
+- ⬜ Modellierung des Verkaufsprozesses
+  - ⬜ Beratung
+  - ⬜ Konfiguration
+  - ⬜ Bestellung
+  - ⬜ Montage
+  - ⬜ Übergabe
+- ⬜ Modellierung des Bestellprozesses
+  - ⬜ Bestandsüberwachung
+  - ⬜ Lieferantenauswahl
+  - ⬜ Bestellung
+  - ⬜ Wareneingangskontrolle
 
-## Phase 3: Erweiterte Funktionen und Anpassungen (Woche 5-6)
+### Phase 5: Berichts- und Dashboards-Implementierung
 
-### Meilenstein 3.1: Kundenschnittstelle (Tag 26-30)
-- [ ] Kundenportal für Terminbuchung einrichten
-- [ ] Reparaturstatus-Tracking für Kunden implementieren
-- [ ] Automatische E-Mail/SMS-Benachrichtigungen einrichten
-- [ ] Online-Bezahlmöglichkeiten integrieren
-- [ ] Kundenregistrierung und -anmeldung konfigurieren
+- ⬜ Werkstattauslastungsbericht
+- ⬜ Umsatzbericht nach Kategorien
+- ⬜ Lagerbericht
+- ⬜ Kundenstatistiken
+- ⬜ Mitarbeiterproduktivität
 
-### Meilenstein 3.2: Erweiterte Werkstattfunktionen (Tag 31-35)
-- [ ] Technikerzeiterfassung implementieren
-- [ ] Werkzeug- und Spezialausrüstungsverwaltung einrichten
-- [ ] Checklisten für verschiedene Reparaturarten erstellen
-- [ ] Bilddokumentation für Reparaturen implementieren
-- [ ] Qualitätssicherungsprozesse definieren
+### Phase 6: Benutzeroberfläche und UX
 
-### Meilenstein 3.3: Berichtswesen (Tag 36-40)
-- [ ] Dashboard für Werkstattauslastung erstellen
-- [ ] Finanzberichte für Werkstatt und Verkauf konfigurieren
-- [ ] Technikerbezogene Leistungsberichte implementieren
-- [ ] Teileverbrauchsanalyse einrichten
-- [ ] Umsatzprognosen und Trendanalysen implementieren
+- ⬜ Anpassung der Benutzeroberfläche an CI von bike.doctor
+- ⬜ Optimierung der Benutzerführung
+- ⬜ Implementierung von Schnellerfassungsformularen
+- ⬜ Responsive Design für Tablet-Nutzung in der Werkstatt
 
-## Phase 4: Integration und Erweiterungen (Woche 7-8)
+### Phase 7: Integration und Schnittstellen
 
-### Meilenstein 4.1: Externe Integrationen (Tag 41-45)
-- [ ] Integration mit Großhändler-APIs für Teilebestellung
-- [ ] Zahlungsdienstleister-Integration für Online-Zahlungen
-- [ ] Kalendersystem-Anbindung (Google, iCal, etc.)
-- [ ] Fahrraddatenbank-Integration für Modelldetails
-- [ ] Steuerberatersoftware-Anbindung (DATEV, etc.)
+- ⬜ E-Mail-Integration für Kundenkommunikation
+- ⬜ SMS-Benachrichtigungen für Auftragsstatus
+- ⬜ Anbindung an Online-Terminbuchungssystem
+- ⬜ Integration mit Kassensystem
+- ⬜ Schnittstelle zu Lieferanten-Bestellsystemen
 
-### Meilenstein 4.2: Mobile Anwendung (Tag 46-50)
-- [ ] Mobile Ansicht für Techniker optimieren
-- [ ] Offline-Modus für Checklisten implementieren
-- [ ] Barcode/QR-Code-Scanning für Teile einrichten
-- [ ] Bildererfassung in der Werkstatt ermöglichen
-- [ ] Push-Benachrichtigungen konfigurieren
+### Phase 8: Schulung und Dokumentation
 
-### Meilenstein 4.3: Leistungsoptimierung (Tag 51-55)
-- [ ] Performance-Monitoring einrichten
-- [ ] Datenbank-Optimierung durchführen
-- [ ] Backup- und Wiederherstellungsstrategien implementieren
-- [ ] Skalierbarkeitstest durchführen
-- [ ] Endbenutzer-Feedback einholen und abschließende Anpassungen vornehmen
+- ⬜ Erstellung von Benutzerhandbüchern
+- ⬜ Schulung der Mitarbeiter
+- ⬜ Dokumentation der technischen Implementierung
+- ⬜ Erstellung von Wartungs- und Supportprozessen
 
-## Erreichter Fortschritt und nächste Schritte
+### Phase 9: Go-Live und Support
 
-### Erreichte Meilensteine (Stand 05.05.2025):
-- Docker-basierte ERPNext v15 Installation erfolgreich eingerichtet
-- bikedoctor-App erfolgreich in das System integriert
-- Grundlegende Datenbankstruktur konfiguriert
-- PYTHONPATH und Docker-Volumes für App-Integration konfiguriert
+- ⬜ Abnahmetests
+- ⬜ Datenmigration aus Altsystemen
+- ⬜ Go-Live
+- ⬜ Post-Go-Live Support
+- ⬜ Feedback und kontinuierliche Verbesserung
 
-### Nächste Schritte priorisiert:
-1. Benutzer und Berechtigungen einrichten
-2. Unternehmensdaten und Firmeneinstellungen konfigurieren 
-3. Testen der implementierten DocTypes (Bicycle, Bicycle_Component, etc.)
-4. Anpassung der Benutzeroberfläche für die Fahrradwerkstatt
+## Aktueller Stand
+
+- **Abgeschlossen:** Phase 1 und 2
+- **In Bearbeitung:** Phase 3
+- **Nächster Schritt:** Definition und Implementierung der DocTypes für Fahrrad und Komponenten
+
+## Offene Probleme
+
+- Redis-Verbindungsproblem wurde mit `BENCH_LOCAL_REDIS=0` in der Docker-Compose-Konfiguration behoben
+- Docker-Container synchronisierbar über das erstellte Update-Skript
+
+## System-Informationen
+
+- **ERPNext-Version:** v15
+- **Docker Images:** frappe/erpnext:v15
+- **Datenbank:** MariaDB 10.6
+- **Web-Server:** Nginx
+- **Host-System:** macOS
+- **Domain:** bikedoctor.localhost
