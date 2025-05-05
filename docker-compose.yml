@@ -5,6 +5,7 @@
 # - Angepasst für bike.doctor mit Site-Name bikedoctor.localhost
 # - Verwendung von ERPNext v15 (neueste Version)
 # - Einheitliche Datenbankbenutzer und Passwörter
+# - Redis-Konfiguration korrigiert für Docker-Networking mit REDIS_CACHE_URL
 
 x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
@@ -53,6 +54,10 @@ services:
   backend:
     <<: *backend_defaults
     platform: linux/amd64
+    environment:
+      - REDIS_CACHE_URL=redis://redis:6379/0
+      - REDIS_QUEUE_URL=redis://redis:6379/1
+      - REDIS_SOCKETIO_URL=redis://redis:6379/2
 
   frontend:
     <<: *customizable_image
@@ -82,21 +87,37 @@ services:
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
       - sites:/home/frappe/frappe-bench/sites
+    environment:
+      - REDIS_CACHE_URL=redis://redis:6379/0
+      - REDIS_QUEUE_URL=redis://redis:6379/1
+      - REDIS_SOCKETIO_URL=redis://redis:6379/2
 
   queue-short:
     <<: *backend_defaults
     platform: linux/amd64
     command: bench worker --queue short,default
+    environment:
+      - REDIS_CACHE_URL=redis://redis:6379/0
+      - REDIS_QUEUE_URL=redis://redis:6379/1
+      - REDIS_SOCKETIO_URL=redis://redis:6379/2
 
   queue-long:
     <<: *backend_defaults
     platform: linux/amd64
     command: bench worker --queue long,default,short
+    environment:
+      - REDIS_CACHE_URL=redis://redis:6379/0
+      - REDIS_QUEUE_URL=redis://redis:6379/1
+      - REDIS_SOCKETIO_URL=redis://redis:6379/2
 
   scheduler:
     <<: *backend_defaults
     platform: linux/amd64
     command: bench schedule
+    environment:
+      - REDIS_CACHE_URL=redis://redis:6379/0
+      - REDIS_QUEUE_URL=redis://redis:6379/1
+      - REDIS_SOCKETIO_URL=redis://redis:6379/2
 
 # ERPNext requires local assets access (Frappe does not)
 volumes:
