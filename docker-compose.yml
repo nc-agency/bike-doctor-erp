@@ -10,6 +10,7 @@
 # - Hinzufügung der fehlenden MariaDB- und Redis-Dienste
 # - Custom-Apps-Verzeichnis als Volume eingebunden für bikedoctor-App
 # - Korrektur der Redis-Verbindung für Session-Handling
+# - Verwendung der optimierten Backend-Dockerfile mit Fehlerbehandlung
 
 x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
@@ -19,13 +20,21 @@ x-customizable-image: &customizable_image
   pull_policy: ${PULL_POLICY:-always}
   restart: ${RESTART_POLICY:-unless-stopped}
 
+x-customizable-backend-image: &customizable_backend_image
+  # Verwendet die optimierte Backend-Dockerfile mit verbesserten Funktionen
+  build:
+    context: .
+    dockerfile: backend.Dockerfile
+  pull_policy: ${PULL_POLICY:-always}
+  restart: ${RESTART_POLICY:-unless-stopped}
+
 x-depends-on-configurator: &depends_on_configurator
   depends_on:
     configurator:
       condition: service_completed_successfully
 
 x-backend-defaults: &backend_defaults
-  <<: [*depends_on_configurator, *customizable_image]
+  <<: [*depends_on_configurator, *customizable_backend_image]
   volumes:
     - sites:/home/frappe/frappe-bench/sites
     - ./custom_apps:/home/frappe/frappe-bench/custom_apps
@@ -38,6 +47,7 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
       - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
+      - --innodb-buffer-pool-size=${MARIADB_INNODB_BUFFER_POOL_SIZE:-512M}
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-frappe}
       - MYSQL_USER=${DB_ROOT_USER:-root}
@@ -47,12 +57,23 @@ services:
     ports:
       - "3306:3306"
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=${DB_PASSWORD:-frappe}"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+      interval: 10s
 
   redis:
     image: redis:alpine
     restart: on-failure
     volumes:
       - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 3s
+      retries: 10
+      interval: 5s
 
   configurator:
     <<: *customizable_image
@@ -66,6 +87,7 @@ services:
       REDIS_QUEUE: redis:6379
       REDIS_SOCKETIO: redis:6379
       SOCKETIO_PORT: "9000"
+      BENCH_LOCAL_REDIS: "0"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - ./custom_apps:/home/frappe/frappe-bench/custom_apps
@@ -82,6 +104,13 @@ services:
       - REDIS_SOCKETIO=redis:6379
       - BENCH_LOCAL_REDIS=0
       - PYTHONPATH=/home/frappe/frappe-bench/apps
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-4}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/method/ping"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+      interval: 10s
 
   frontend:
     <<: *customizable_image
@@ -103,11 +132,14 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - ./custom_apps:/home/frappe/frappe-bench/custom_apps
+    depends_on:
+      - backend
+      - websocket
 
   queue-short:
     <<: *backend_defaults
     platform: linux/amd64
-    command: bench worker --queue short
+    command: worker short
     environment:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
@@ -120,7 +152,7 @@ services:
   queue-long:
     <<: *backend_defaults
     platform: linux/amd64
-    command: bench worker --queue long,default,short
+    command: worker "long,default,short"
     environment:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
@@ -133,7 +165,7 @@ services:
   scheduler:
     <<: *backend_defaults
     platform: linux/amd64
-    command: bench schedule
+    command: scheduler
     environment:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
