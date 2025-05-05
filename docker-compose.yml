@@ -8,6 +8,7 @@
 # - Redis-Konfiguration korrigiert für Docker-Networking mit REDIS_CACHE_URL
 # - Port-Exposition des Frontend-Containers für direkten Zugriff
 # - Hinzufügung der fehlenden MariaDB- und Redis-Dienste
+# - Custom-Apps-Verzeichnis als Volume eingebunden für bikedoctor-App
 
 x-customizable-image: &customizable_image
   # By default the image used only contains the `frappe` and `erpnext` apps.
@@ -26,47 +27,47 @@ x-backend-defaults: &backend_defaults
   <<: [*depends_on_configurator, *customizable_image]
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+    - ./custom_apps:/home/frappe/frappe-bench/custom_apps
 
 services:
   mariadb:
     image: mariadb:10.6
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --skip-character-set-client-handshake --skip-innodb-read-only-compressed
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     environment:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-frappe}
+      - MYSQL_USER=${DB_ROOT_USER:-root}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-frappe}
     volumes:
       - mariadb-data:/var/lib/mysql
     ports:
       - "3306:3306"
+    restart: on-failure
 
   redis:
     image: redis:alpine
+    restart: on-failure
     volumes:
       - redis-data:/data
 
   configurator:
-    <<: *backend_defaults
+    <<: *customizable_image
     platform: linux/amd64
-    entrypoint:
-      - bash
-      - -c
-    # add redis_socketio for backward compatibility
     command:
-      - >
-        ls -1 apps > sites/apps.txt;
-        bench set-config -g db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
-        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+      - configure.py
     environment:
-      DB_HOST: ${DB_HOST:-}
-      DB_PORT: ${DB_PORT:-}
-      REDIS_CACHE: ${REDIS_CACHE:-}
-      REDIS_QUEUE: ${REDIS_QUEUE:-}
-      SOCKETIO_PORT: 9000
-    depends_on: {}
-    restart: on-failure
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      REDIS_CACHE: redis:6379
+      REDIS_QUEUE: redis:6379
+      REDIS_SOCKETIO: redis:6379
+      SOCKETIO_PORT: "9000"
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
 
   backend:
     <<: *backend_defaults
@@ -95,27 +96,12 @@ services:
       - "443:443"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
-    depends_on:
-      - backend
-      - websocket
-
-  websocket:
-    <<: [*depends_on_configurator, *customizable_image]
-    platform: linux/amd64
-    command:
-      - node
-      - /home/frappe/frappe-bench/apps/frappe/socketio.js
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-    environment:
-      - REDIS_CACHE_URL=redis://redis:6379/0
-      - REDIS_QUEUE_URL=redis://redis:6379/1
-      - REDIS_SOCKETIO_URL=redis://redis:6379/2
+      - ./custom_apps:/home/frappe/frappe-bench/custom_apps
 
   queue-short:
     <<: *backend_defaults
     platform: linux/amd64
-    command: bench worker --queue short,default
+    command: bench worker --queue short
     environment:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
@@ -134,6 +120,15 @@ services:
     <<: *backend_defaults
     platform: linux/amd64
     command: bench schedule
+    environment:
+      - REDIS_CACHE_URL=redis://redis:6379/0
+      - REDIS_QUEUE_URL=redis://redis:6379/1
+      - REDIS_SOCKETIO_URL=redis://redis:6379/2
+
+  websocket:
+    <<: *backend_defaults
+    platform: linux/amd64
+    command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
     environment:
       - REDIS_CACHE_URL=redis://redis:6379/0
       - REDIS_QUEUE_URL=redis://redis:6379/1
