@@ -3,6 +3,10 @@
 # 
 # Dieses Script initialisiert eine neue ERPNext-Installation für bike.doctor
 # und wird als Entrypoint für den erpnext-app Container verwendet.
+# Erstellt am: 2025-05-05
+# Änderungen:
+# - Initiale Erstellung des Scripts zur Verbesserung der Initialisierungssequenz von ERPNext
+# - Aufgeteilt in besser nachvollziehbare Schritte mit detaillierter Ausgabe für Debugging
 
 set -e  # Beendet das Script bei Fehlern
 echo "Start der ERPNext-Initialisierung"

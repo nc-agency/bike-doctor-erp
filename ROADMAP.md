@@ -3,6 +3,7 @@
 Erstellt: 05.05.2025
 Änderungen:
 - Initiale Erstellung der Roadmap für das bike.doctor ERP-System
+- Aktualisierung: Erstellung der Bicycle Management und Notifications Module
 - Aktualisierung des Fortschritts bei der Einrichtung der Systemumgebung und der initialen Datenbank
 
 ## Übersicht

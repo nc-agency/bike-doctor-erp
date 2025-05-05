@@ -24,7 +24,7 @@ Diese Anwendung basiert auf ERPNext und bietet spezialisierte Funktionen für di
 
 1. Repository klonen:
    ```
-   git clone https://github.com/username/bike-doctor-erp.git
+   git clone https://github.com/nc-agency/bike-doctor-erp.git
    cd bike-doctor-erp
    ```
 
@@ -54,6 +54,10 @@ Diese Anwendung basiert auf ERPNext und bietet spezialisierte Funktionen für di
 - Kundenstammdaten mit Fahrradverknüpfung
 - Kommunikationshistorie
 - Automatische Benachrichtigungen bei Reparaturstatus-Änderungen
+
+## Implementierungsplan
+
+Eine detaillierte Implementierungs-Roadmap findest du in der [ROADMAP.md](ROADMAP.md)-Datei. Diese enthält einen umfassenden Plan mit klaren Meilensteinen, Zeitvorgaben und Ressourcenanforderungen.
 
 ## Benutzerdefinierte Datenmodelle
 
