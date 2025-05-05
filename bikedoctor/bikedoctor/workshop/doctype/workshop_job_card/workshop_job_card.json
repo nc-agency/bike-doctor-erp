@@ -1,0 +1,257 @@
+{
+ "autoname": "JC.#####",
+ "creation": "2025-05-05 17:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "workshop_order",
+  "service_type",
+  "column_break_3",
+  "status",
+  "bike_section",
+  "bike",
+  "bike_model",
+  "bike_brand",
+  "column_break_9",
+  "frame_number",
+  "year",
+  "task_details_section",
+  "description",
+  "estimated_hours",
+  "column_break_14",
+  "priority",
+  "technician",
+  "time_tracking_section",
+  "planned_start_date",
+  "actual_start_time",
+  "column_break_20",
+  "planned_end_date",
+  "actual_end_time",
+  "total_time",
+  "parts_section",
+  "parts",
+  "total_parts_cost",
+  "notes_section",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "workshop_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Workshop Order",
+   "options": "Workshop Order",
+   "reqd": 1
+  },
+  {
+   "fieldname": "service_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Service Type",
+   "options": "Service Type"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nIn Progress\nOn Hold\nCompleted\nCancelled",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bike_section",
+   "fieldtype": "Section Break",
+   "label": "Bike Information"
+  },
+  {
+   "fieldname": "bike",
+   "fieldtype": "Link",
+   "label": "Bike ID",
+   "options": "Bike Details"
+  },
+  {
+   "fetch_from": "bike.bike_model",
+   "fieldname": "bike_model",
+   "fieldtype": "Data",
+   "label": "Bike Model",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "bike.bike_brand",
+   "fieldname": "bike_brand",
+   "fieldtype": "Link",
+   "label": "Bike Brand",
+   "options": "Bike Brand",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "bike.frame_number",
+   "fieldname": "frame_number",
+   "fieldtype": "Data",
+   "label": "Frame Number",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "bike.year",
+   "fieldname": "year",
+   "fieldtype": "Int",
+   "label": "Year",
+   "read_only": 1
+  },
+  {
+   "fieldname": "task_details_section",
+   "fieldtype": "Section Break",
+   "label": "Task Details"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "estimated_hours",
+   "fieldtype": "Float",
+   "label": "Estimated Hours",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Normal",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "Low\nNormal\nHigh\nUrgent"
+  },
+  {
+   "fieldname": "technician",
+   "fieldtype": "Link",
+   "label": "Assigned Technician",
+   "options": "User"
+  },
+  {
+   "fieldname": "time_tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Time Tracking"
+  },
+  {
+   "fieldname": "planned_start_date",
+   "fieldtype": "Date",
+   "label": "Planned Start Date"
+  },
+  {
+   "fieldname": "actual_start_time",
+   "fieldtype": "Datetime",
+   "label": "Actual Start Time"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "planned_end_date",
+   "fieldtype": "Date",
+   "label": "Planned End Date"
+  },
+  {
+   "fieldname": "actual_end_time",
+   "fieldtype": "Datetime",
+   "label": "Actual End Time"
+  },
+  {
+   "fieldname": "total_time",
+   "fieldtype": "Float",
+   "label": "Total Time (Hours)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "parts_section",
+   "fieldtype": "Section Break",
+   "label": "Parts Used"
+  },
+  {
+   "fieldname": "parts",
+   "fieldtype": "Table",
+   "label": "Parts",
+   "options": "Workshop Job Card Part"
+  },
+  {
+   "fieldname": "total_parts_cost",
+   "fieldtype": "Currency",
+   "label": "Total Parts Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Technician Notes"
+  }
+ ],
+ "modified": "2025-05-05 17:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "BikeDoctor Workshop Management",
+ "name": "Workshop Job Card",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Workshop Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Workshop Technician",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}

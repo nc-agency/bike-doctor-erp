@@ -1,0 +1,134 @@
+/* bikedoctor.css für bike.doctor ERPNext-Erweiterung
+ * Erstellt am 2025-05-05
+ * Diese Datei enthält die Styling-Definitionen für die bike.doctor-App
+ * - Hauptstilseite für alle benutzerdefinierten Komponenten
+ * - Erweitert das ERPNext-Design um Workshop-spezifische Stile
+ */
+
+/* Primäre App-Farben */
+:root {
+  --bike-doctor-primary: #4287f5;
+  --bike-doctor-secondary: #34c759;
+  --bike-doctor-warning: #ff9500;
+  --bike-doctor-danger: #ff3b30;
+  --bike-doctor-light: #f8f9fa;
+  --bike-doctor-dark: #343a40;
+}
+
+/* Workshop Modul Icon Styling */
+.module-bikedoctor-workshop-management .icon {
+  color: var(--bike-doctor-primary);
+}
+
+/* Workshop Cards */
+.workshop-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.workshop-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.workshop-card-header {
+  padding: 12px 15px;
+  background-color: var(--bike-doctor-primary);
+  color: white;
+  font-weight: bold;
+}
+
+.workshop-card-body {
+  padding: 15px;
+  background-color: white;
+}
+
+.workshop-card-footer {
+  padding: 10px 15px;
+  background-color: var(--bike-doctor-light);
+  border-top: 1px solid #ddd;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-open {
+  background-color: var(--bike-doctor-light);
+  color: var(--bike-doctor-dark);
+}
+
+.status-in-progress {
+  background-color: var(--bike-doctor-primary);
+  color: white;
+}
+
+.status-completed {
+  background-color: var(--bike-doctor-secondary);
+  color: white;
+}
+
+.status-on-hold {
+  background-color: var(--bike-doctor-warning);
+  color: white;
+}
+
+.status-cancelled {
+  background-color: var(--bike-doctor-danger);
+  color: white;
+}
+
+/* Workshop Timeline */
+.workshop-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.workshop-timeline:before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--bike-doctor-primary);
+}
+
+.workshop-timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.workshop-timeline-item:before {
+  content: "";
+  position: absolute;
+  left: -30px;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--bike-doctor-primary);
+  border: 2px solid white;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+  .workshop-card {
+    margin-bottom: 10px;
+  }
+  
+  .workshop-card-header, 
+  .workshop-card-body, 
+  .workshop-card-footer {
+    padding: 10px;
+  }
+}

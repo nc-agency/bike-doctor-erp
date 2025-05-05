@@ -1,0 +1,6 @@
+# requirements.txt für bike.doctor ERPNext-Erweiterung
+# Erstellt am 2025-05-05
+# Diese Datei definiert die Python-Abhängigkeiten für die bike.doctor-App
+
+frappe
+erpnext

@@ -1,0 +1,22 @@
+# MANIFEST.in für bike.doctor ERPNext-Erweiterung
+# Erstellt am 2025-05-05
+# Diese Datei legt fest, welche Dateien in das Paket aufgenommen werden sollen
+
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include bikedoctor *.css
+recursive-include bikedoctor *.csv
+recursive-include bikedoctor *.html
+recursive-include bikedoctor *.ico
+recursive-include bikedoctor *.js
+recursive-include bikedoctor *.json
+recursive-include bikedoctor *.md
+recursive-include bikedoctor *.png
+recursive-include bikedoctor *.py
+recursive-include bikedoctor *.svg
+recursive-include bikedoctor *.txt
+recursive-exclude bikedoctor *.pyc
