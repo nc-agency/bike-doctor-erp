@@ -3,6 +3,7 @@
 Erstellt: 05.05.2025
 Änderungen:
 - Initiale Erstellung der Roadmap für das bike.doctor ERP-System
+- Aktualisierung: Erstellung der Bicycle Management und Notifications Module
 
 ## Übersicht
 
@@ -14,6 +15,7 @@ Diese Roadmap dokumentiert den detaillierten Implementierungsplan für das bike.
 - [x] Docker-Umgebung mit ERPNext einrichten
 - [x] Grundstruktur der benutzerdefinierten App erstellen
 - [x] Core DocTypes definieren (Bicycle, Bicycle Repair, etc.)
+- [x] Initiale Module für Bicycle Management und Benachrichtigungen erstellen
 - [ ] Initiale Datenbank einrichten und konfigurieren
 - [ ] Benutzer und Berechtigungen einrichten
 
